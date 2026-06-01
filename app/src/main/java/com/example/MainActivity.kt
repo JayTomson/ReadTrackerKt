@@ -1,0 +1,284 @@
+package com.example
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.*
+import androidx.navigation.navArgument
+import com.example.ui.screens.*
+import com.example.ui.theme.ReadTrackerTheme
+import com.example.ui.theme.AccentOrange
+import com.example.viewmodel.ReadTrackerViewModel
+import kotlinx.coroutines.launch
+
+class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            val viewModel: ReadTrackerViewModel = viewModel()
+            val themeMode by viewModel.themeMode.collectAsState()
+            val hideBottomBar by viewModel.hideBottomBar.collectAsState()
+            val toastMessage by viewModel.toastMessage.collectAsState()
+
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scope = rememberCoroutineScope()
+
+            // Real-time custom designed Snackbars / Toast notifications
+            LaunchedEffect(toastMessage) {
+                toastMessage?.let { (msg, isSuccess) ->
+                    // Dismiss previous active snackbar first
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    // Clear state in viewModel immediately to avoid any repeated triggers
+                    viewModel.clearToast()
+                    // Display current snackbar with Short duration
+                    snackbarHostState.showSnackbar(
+                        message = msg,
+                        actionLabel = if (isSuccess) "success" else "error",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
+
+            ReadTrackerTheme(themeMode = themeMode) {
+                val navController = rememberNavController()
+                val currentBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = currentBackStackEntry?.destination?.route ?: "library"
+
+                // State representing the "Поделиться" BottomSheet
+                var showShareBottomSheet by remember { mutableStateOf(false) }
+
+                Scaffold(
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                    containerColor = MaterialTheme.colorScheme.background,
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarHostState) { data ->
+                            val isSuccess = data.visuals.actionLabel == "success"
+                            val bgAccentColor = if (isSuccess) AccentOrange else Color(0xFFF87171)
+                            Snackbar(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp, vertical = 20.dp)
+                                    .clip(RoundedCornerShape(12.dp)),
+                                containerColor = bgAccentColor,
+                                contentColor = Color.White
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = if (isSuccess) Icons.Rounded.CheckCircle else Icons.Rounded.Error,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = data.visuals.message,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    bottomBar = {
+                        // Display navigation bar ONLY if hideBottomBar is false, and we are on primary screens
+                        val isMainScreen = currentRoute == "library" || currentRoute == "analytics"
+                        if (isMainScreen && !hideBottomBar) {
+                            Column {
+                                // Thin 0.5dp line separator
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 0.5.dp)
+                                NavigationBar(
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    tonalElevation = 0.dp,
+                                    windowInsets = WindowInsets(0, 0, 0, 0),
+                                    modifier = Modifier
+                                        .height(58.dp)
+                                        .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                                ) {
+                                    NavigationBarItem(
+                                        selected = currentRoute == "library",
+                                        onClick = { navController.navigate("library") { popUpTo("library") { inclusive = false } } },
+                                        icon = { Icon(Icons.Rounded.LibraryBooks, contentDescription = null) },
+                                        label = {
+                                            Text(
+                                                "Библиотека",
+                                                fontSize = 11.sp,
+                                                fontWeight = if (currentRoute == "library") FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        },
+                                        colors = NavigationBarItemDefaults.colors(
+                                            selectedIconColor = AccentOrange,
+                                            selectedTextColor = AccentOrange,
+                                            unselectedIconColor = Color.Gray,
+                                            unselectedTextColor = Color.Gray,
+                                            indicatorColor = Color.Transparent
+                                        )
+                                    )
+
+                                    NavigationBarItem(
+                                        selected = currentRoute == "analytics",
+                                        onClick = { navController.navigate("analytics") { popUpTo("library") } },
+                                        icon = { Icon(Icons.Rounded.BarChart, contentDescription = null) },
+                                        label = {
+                                            Text(
+                                                "Аналитика",
+                                                fontSize = 11.sp,
+                                                fontWeight = if (currentRoute == "analytics") FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        },
+                                        colors = NavigationBarItemDefaults.colors(
+                                            selectedIconColor = AccentOrange,
+                                            selectedTextColor = AccentOrange,
+                                            unselectedIconColor = Color.Gray,
+                                            unselectedTextColor = Color.Gray,
+                                            indicatorColor = Color.Transparent
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "library",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = innerPadding.calculateBottomPadding())
+                    ) {
+                        composable("library") {
+                            LibraryScreen(
+                                viewModel = viewModel,
+                                onNavigateToAdd = { navController.navigate("add_book") },
+                                onNavigateToEdit = { bookId -> navController.navigate("edit_book/$bookId") },
+                                onNavigateToAnalytics = { navController.navigate("analytics") },
+                                onOpenShareSheet = { showShareBottomSheet = true }
+                            )
+                        }
+
+                        composable("analytics") {
+                            AnalyticsScreen(
+                                viewModel = viewModel,
+                                onNavigateToSettings = { navController.navigate("settings") }
+                            )
+                        }
+
+                        composable("settings") {
+                            SettingsScreen(viewModel = viewModel)
+                        }
+
+                        composable("add_book") {
+                            AddBookScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable(
+                            route = "edit_book/{bookId}",
+                            arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val bookId = backStackEntry.arguments?.getString("bookId") ?: ""
+                            EditBookScreen(
+                                bookId = bookId,
+                                viewModel = viewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("share_analytics") {
+                            ShareAnalyticsScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable("share_list") {
+                            ShareListScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
+
+                    // BottomSheet Share panel dialog sheet
+                    if (showShareBottomSheet) {
+                        ModalBottomSheet(
+                            onDismissRequest = { showShareBottomSheet = false },
+                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            dragHandle = {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(top = 12.dp)
+                                        .size(36.dp, 4.dp)
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(Color.Gray.copy(alpha = 0.3f))
+                                )
+                            }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 44.dp)
+                            ) {
+                                Text(
+                                    text = "Поделиться",
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.padding(vertical = 12.dp)
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                ShareOptionTile(
+                                    title = "Аналитика",
+                                    subtitle = "Карточка со статистикой",
+                                    icon = Icons.Rounded.Analytics,
+                                    color = AccentOrange,
+                                    onClick = {
+                                        showShareBottomSheet = false
+                                        navController.navigate("share_analytics")
+                                    }
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                ShareOptionTile(
+                                    title = "Список тайтлов",
+                                    subtitle = "Все тайтлы в одной карточке",
+                                    icon = Icons.Rounded.FormatListBulleted,
+                                    color = Color(0xFF34D399),
+                                    onClick = {
+                                        showShareBottomSheet = false
+                                        navController.navigate("share_list")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "ReadTracker",
+  "description": "An elegant app to track your reading progress, volume lists, book word counts, ratings, and analytics, with full customization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
