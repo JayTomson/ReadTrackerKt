@@ -110,10 +110,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationBar(
                                     containerColor = MaterialTheme.colorScheme.surface,
                                     tonalElevation = 0.dp,
-                                    windowInsets = WindowInsets(0, 0, 0, 0),
-                                    modifier = Modifier
-                                        .height(58.dp)
-                                        .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                                    windowInsets = NavigationBarDefaults.windowInsets
                                 ) {
                                     NavigationBarItem(
                                         selected = currentRoute == "library",

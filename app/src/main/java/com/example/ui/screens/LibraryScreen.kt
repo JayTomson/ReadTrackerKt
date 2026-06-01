@@ -110,19 +110,19 @@ fun LibraryScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
+                    .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Библиотека",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.W800,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Row(
-                    modifier = Modifier.height(40.dp),
+                    modifier = Modifier.wrapContentHeight(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -159,7 +159,7 @@ fun LibraryScreen(
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(38.dp),
+                    .height(30.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -181,7 +181,7 @@ fun LibraryScreen(
                             fontSize = 14.sp,
                             fontWeight = if (isSelected) FontWeight.W800 else FontWeight.W500,
                             color = if (isSelected) AccentOrange else Color.Gray,
-                            modifier = Modifier.padding(bottom = 4.dp)
+                            modifier = Modifier.padding(bottom = 2.dp)
                         )
                         // Underline indicator
                         Box(
@@ -341,14 +341,14 @@ fun BookRowItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
-                .padding(10.dp),
+                .padding(horizontal = 10.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 1. Cover
             Box(
                 modifier = Modifier
-                    .size(width = 52.dp, height = 74.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(width = 38.dp, height = 52.dp)
+                    .clip(RoundedCornerShape(6.dp))
                     .background(Color(book.coverColor).copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
@@ -364,7 +364,7 @@ fun BookRowItem(
                         imageVector = Icons.Rounded.Image,
                         contentDescription = null,
                         tint = Color.Gray.copy(alpha = 0.5f),
-                        modifier = Modifier.size(22.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -378,19 +378,19 @@ fun BookRowItem(
                 // Line 1: Title only (takes full available width)
                 Text(
                     text = book.title,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
 
                 // Line 2: Status Indicator only
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    modifier = Modifier.padding(bottom = 1.dp)
                 ) {
                     Box(
                         modifier = Modifier
@@ -407,7 +407,7 @@ fun BookRowItem(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(1.dp))
 
                 // Line 3: Progress Data
                 Row(
@@ -612,14 +612,14 @@ fun BookRowItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Status bar strip on extreme left
             Box(
                 modifier = Modifier
                     .width(3.dp)
-                    .height(40.dp)
+                    .height(24.dp)
                     .clip(RoundedCornerShape(2.dp))
                     .background(statusColor)
             )
@@ -632,10 +632,10 @@ fun BookRowItem(
                 // Line 1: Title only
                 Text(
                     text = book.title,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 

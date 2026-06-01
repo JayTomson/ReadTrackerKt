@@ -83,7 +83,7 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     // Book Actions
     fun addBook(book: Book) {
         val list = books.value.toMutableList()
-        list.add(book)
+        list.add(0, book)
         prefsManager.saveBooks(list)
         showToast("Тайтл \"${book.title}\" успешно добавлен")
     }
