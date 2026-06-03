@@ -127,7 +127,6 @@ fun EditBookScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Редактировать", fontWeight = FontWeight.Bold, fontSize = 20.sp) },

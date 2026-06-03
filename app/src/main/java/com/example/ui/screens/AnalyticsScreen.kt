@@ -30,28 +30,37 @@ import com.example.ui.theme.AccentOrange
 @Composable
 fun AnalyticsScreen(
     viewModel: ReadTrackerViewModel,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val books by viewModel.books.collectAsState()
     val shortenNumbers by viewModel.shortenNumbers.collectAsState()
     val stackedStats by viewModel.stackedStats.collectAsState()
     val showWebInStats by viewModel.showWebInStats.collectAsState()
 
-    // Calculating Metrics
-    val completedSeriesCount = books.count { it.status == 3 && !it.isWeb }
-    val completedWebCount = books.count { it.status == 3 && it.isWeb }
-    
-    // Sum of all effective volumes read
-    val totalVolumesRead = books.sumOf { if (it.countVolumes && !it.isWeb) it.effectiveVolumes else 0 }
-    val hasBooksWithVolumes = books.any { it.countVolumes && !it.isWeb }
+    // Calculating Metrics with optimized remember block
+    val completedSeriesCount = remember(books) { books.count { it.status == 3 && it.isSeries } }
+    val completedSinglesCount = remember(books) { books.count { it.status == 3 && it.isSingle } }
+    val completedHybridsCount = remember(books) { books.count { it.status == 3 && it.isHybridFormat } }
+    val completedWebCount = remember(books) { books.count { it.status == 3 && it.isWeb } }
 
-    val totalWordsRead = books.sumOf { it.effectiveWords }
+    val totalVolumesRead = remember(books) { books.sumOf { if (it.countVolumes && !it.isWeb) it.effectiveVolumes else 0 } }
+    val hasBooksWithVolumes = remember(books) { books.any { it.countVolumes && !it.isWeb } }
+    val totalWordsRead = remember(books) { books.sumOf { it.effectiveWords } }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Аналитика", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = "Назад",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
@@ -67,67 +76,134 @@ fun AnalyticsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             // METRICS CARD SECTION
-            if (stackedStats) {
-                // Stacked mode (vertical stack)
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard(
-                        count = completedSeriesCount.toString(),
-                        label = "Завершено серий",
-                        icon = Icons.Rounded.EmojiEvents,
-                        color = Color(0xFF34D399) // Green
-                    )
-                    if (showWebInStats) {
-                        StatCard(
-                            count = completedWebCount.toString(),
-                            label = "Завершено веб",
-                            icon = Icons.Rounded.Language,
-                            color = Color(0xFFA78BFA) // Violet
-                        )
-                    }
-                    if (hasBooksWithVolumes) {
-                        StatCard(
-                            count = totalVolumesRead.toString(),
-                            label = "Прочитано томов",
-                            icon = Icons.Rounded.Layers,
-                            color = Color(0xFF60A5FA) // Blue
-                        )
-                    }
-                }
-            } else {
-                // Inline mode (horizontal row with equal height)
-                val enabledCardsNum = 1 + (if (showWebInStats) 1 else 0) + (if (hasBooksWithVolumes) 1 else 0)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
+            val statsList = remember(completedSeriesCount, completedSinglesCount, completedHybridsCount, completedWebCount, showWebInStats, hasBooksWithVolumes, totalVolumesRead) {
+                mutableListOf<@Composable () -> Unit>().apply {
+                    add {
                         StatCard(
                             count = completedSeriesCount.toString(),
-                            label = "Завершено\nсерий",
+                            label = "Завершено серий",
                             icon = Icons.Rounded.EmojiEvents,
-                            color = Color(0xFF34D399)
+                            color = Color(0xFF34D399) // Green
                         )
                     }
-                    if (showWebInStats) {
-                        Box(modifier = Modifier.weight(1f)) {
+
+                    if (completedSinglesCount > 0) {
+                        add {
                             StatCard(
-                                count = completedWebCount.toString(),
-                                label = "Завершено\nвеб",
-                                icon = Icons.Rounded.Language,
-                                color = Color(0xFFA78BFA)
+                                count = completedSinglesCount.toString(),
+                                label = "Завершено синглов",
+                                icon = Icons.Rounded.ContentCopy,
+                                color = Color(0xFF06B6D4) // Cyan
                             )
                         }
                     }
+
+                    if (completedHybridsCount > 0) {
+                        add {
+                            StatCard(
+                                count = completedHybridsCount.toString(),
+                                label = "Завершено LN+WN",
+                                icon = Icons.Rounded.AutoStories,
+                                color = Color(0xFFFBBF24) // Yellow
+                            )
+                        }
+                    }
+
+                    if (showWebInStats) {
+                        add {
+                            StatCard(
+                                count = completedWebCount.toString(),
+                                label = "Завершено веб",
+                                icon = Icons.Rounded.Language,
+                                color = Color(0xFFA78BFA) // Violet
+                            )
+                        }
+                    }
+
                     if (hasBooksWithVolumes) {
-                        Box(modifier = Modifier.weight(1f)) {
+                        add {
                             StatCard(
                                 count = totalVolumesRead.toString(),
-                                label = "Прочитано\nтомов",
+                                label = "Прочитано томов",
                                 icon = Icons.Rounded.Layers,
-                                color = Color(0xFF60A5FA)
+                                color = Color(0xFF60A5FA) // Blue
                             )
+                        }
+                    }
+                }
+            }
+
+            if (stackedStats) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    statsList.forEach { card -> card() }
+                }
+            } else {
+                // Inline mode: Dynamic, responsive grid layout that adapts based on the total number of metric cards
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    when (statsList.size) {
+                        1 -> {
+                            statsList[0]()
+                        }
+                        2 -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) { statsList[0]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[1]() }
+                            }
+                        }
+                        3 -> {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) { statsList[0]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[1]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[2]() }
+                            }
+                        }
+                        4 -> {
+                            // Two equal rows of 2 for balanced structure
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) { statsList[0]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[1]() }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) { statsList[2]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[3]() }
+                            }
+                        }
+                        else -> {
+                            // 5 or more: Row of 3 on top, and remaining in the second row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(modifier = Modifier.weight(1f)) { statsList[0]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[1]() }
+                                Box(modifier = Modifier.weight(1f)) { statsList[2]() }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                for (j in 3 until statsList.size) {
+                                    Box(modifier = Modifier.weight(1f)) { statsList[j]() }
+                                }
+                                val remaining = 3 - (statsList.size - 3)
+                                if (remaining > 0) {
+                                    repeat(remaining) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -24,9 +24,6 @@ class PreferencesManager(context: Context) {
     private val _showCovers = MutableStateFlow(prefs.getBoolean("showCovers", true))
     val showCovers: StateFlow<Boolean> = _showCovers
 
-    private val _hideBottomBar = MutableStateFlow(prefs.getBoolean("hideBottomBar", false))
-    val hideBottomBar: StateFlow<Boolean> = _hideBottomBar
-
     private val _showWebChapters = MutableStateFlow(prefs.getBoolean("showWebChapters", false))
     val showWebChapters: StateFlow<Boolean> = _showWebChapters
 
@@ -83,11 +80,6 @@ class PreferencesManager(context: Context) {
     fun setShowCovers(value: Boolean) {
         prefs.edit().putBoolean("showCovers", value).apply()
         _showCovers.value = value
-    }
-
-    fun setHideBottomBar(value: Boolean) {
-        prefs.edit().putBoolean("hideBottomBar", value).apply()
-        _hideBottomBar.value = value
     }
 
     fun setShowWebChapters(value: Boolean) {

@@ -28,7 +28,8 @@ import com.example.ui.theme.AccentOrange
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: ReadTrackerViewModel
+    viewModel: ReadTrackerViewModel,
+    onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -37,7 +38,6 @@ fun SettingsScreen(
     val showShareButton by viewModel.showShareButton.collectAsState()
     val stackedStats by viewModel.stackedStats.collectAsState()
     val showCovers by viewModel.showCovers.collectAsState()
-    val hideBottomBar by viewModel.hideBottomBar.collectAsState()
     val showWebChapters by viewModel.showWebChapters.collectAsState()
     val showBookmarks by viewModel.showBookmarks.collectAsState()
     val bookmarkPosition by viewModel.bookmarkPosition.collectAsState()
@@ -60,10 +60,18 @@ fun SettingsScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Настройки", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBack,
+                            contentDescription = "Назад",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
@@ -238,13 +246,6 @@ fun SettingsScreen(
                     subtitle = "Отображать шторку экспорта в шапке библиотеки",
                     checked = showShareButton,
                     onCheckedChange = { viewModel.setShowShareButton(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Скрыть нижний бар",
-                    subtitle = if (hideBottomBar) "Статистика через кнопку вверху" else "Нижняя навигация активна",
-                    checked = hideBottomBar,
-                    onCheckedChange = { viewModel.setHideBottomBar(it) }
                 )
                 HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
                 SwitchRow(

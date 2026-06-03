@@ -100,7 +100,6 @@ fun AddBookScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Добавить тайтл", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
@@ -128,8 +127,7 @@ fun AddBookScreen(
             // Footer bottom button
             Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+                    .fillMaxWidth(),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Button(

@@ -45,7 +45,6 @@ fun LibraryScreen(
 ) {
     val books by viewModel.books.collectAsState()
     val showCovers by viewModel.showCovers.collectAsState()
-    val hideBottomBar by viewModel.hideBottomBar.collectAsState()
     val showShareButton by viewModel.showShareButton.collectAsState()
     val showBookmarks by viewModel.showBookmarks.collectAsState()
     val bookmarkPosition by viewModel.bookmarkPosition.collectAsState()
@@ -66,30 +65,29 @@ fun LibraryScreen(
     val currentTab = savedTabIndex
 
     // Filter books based on tab
-    val filteredBooks = if (currentTab == 0) {
-        books
-    } else {
-        val targetStatus = when (currentTab) {
-            1 -> 1 // Reading
-            2 -> 0 // Planned
-            3 -> 3 // Completed
-            4 -> 2 // Paused
-            5 -> 4 // Dropped
-            else -> 0
+    val filteredBooks = remember(books, currentTab) {
+        if (currentTab == 0) {
+            books
+        } else {
+            val targetStatus = when (currentTab) {
+                1 -> 1 // Reading
+                2 -> 0 // Planned
+                3 -> 3 // Completed
+                4 -> 2 // Paused
+                5 -> 4 // Dropped
+                else -> 0
+            }
+            books.filter { it.status == targetStatus }
         }
-        books.filter { it.status == targetStatus }
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
                 containerColor = AccentOrange,
                 contentColor = Color.White,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .padding(bottom = if (hideBottomBar) 16.dp else 0.dp)
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Add,
@@ -103,8 +101,7 @@ fun LibraryScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .padding(bottom = innerPadding.calculateBottomPadding())
+                .padding(innerPadding)
         ) {
             // Unified header Row for precise spacing
             Row(
@@ -116,7 +113,7 @@ fun LibraryScreen(
             ) {
                 Text(
                     text = "Библиотека",
-                    fontSize = 18.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -126,23 +123,25 @@ fun LibraryScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (hideBottomBar) {
-                        IconButton(
-                            onClick = onNavigateToAnalytics,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Analytics,
-                                contentDescription = "Аналитика",
-                                tint = AccentOrange,
-                                modifier = Modifier.size(25.dp)
-                            )
-                        }
+                    IconButton(
+                        onClick = onNavigateToAnalytics,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Analytics,
+                            contentDescription = "Аналитика",
+                            tint = AccentOrange,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                     if (showShareButton) {
                         IconButton(
                             onClick = onOpenShareSheet,
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier
+                                .size(40.dp)
+                                .align(Alignment.CenterVertically)
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.IosShare,
@@ -639,7 +638,7 @@ fun BookRowItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(1.dp))
 
                 // Line 2: Progress indicators
                 Row(
@@ -728,7 +727,7 @@ fun BookRowItem(
 
                 // Line 3: Bookmark - bottom mode
                 if (showBookmarks && bookmarkPosition == 0 && !book.currentBookmark.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically

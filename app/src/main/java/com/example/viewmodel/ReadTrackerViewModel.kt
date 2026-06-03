@@ -31,7 +31,6 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     val showShareButton: StateFlow<Boolean> = prefsManager.showShareButton
     val stackedStats: StateFlow<Boolean> = prefsManager.stackedStats
     val showCovers: StateFlow<Boolean> = prefsManager.showCovers
-    val hideBottomBar: StateFlow<Boolean> = prefsManager.hideBottomBar
     val showWebChapters: StateFlow<Boolean> = prefsManager.showWebChapters
     val showBookmarks: StateFlow<Boolean> = prefsManager.showBookmarks
     val bookmarkPosition: StateFlow<Int> = prefsManager.bookmarkPosition
@@ -69,7 +68,6 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     fun setShowShareButton(v: Boolean) = prefsManager.setShowShareButton(v)
     fun setStackedStats(v: Boolean) = prefsManager.setStackedStats(v)
     fun setShowCovers(v: Boolean) = prefsManager.setShowCovers(v)
-    fun setHideBottomBar(v: Boolean) = prefsManager.setHideBottomBar(v)
     fun setShowWebChapters(v: Boolean) = prefsManager.setShowWebChapters(v)
     fun setShowBookmarks(v: Boolean) = prefsManager.setShowBookmarks(v)
     fun setBookmarkPosition(p: Int) = prefsManager.setBookmarkPosition(p)

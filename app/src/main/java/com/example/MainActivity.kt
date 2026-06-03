@@ -33,11 +33,12 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Enable edge-to-edge for premium transparent navigation bar at the bottom
         enableEdgeToEdge()
+
         setContent {
             val viewModel: ReadTrackerViewModel = viewModel()
             val themeMode by viewModel.themeMode.collectAsState()
-            val hideBottomBar by viewModel.hideBottomBar.collectAsState()
             val toastMessage by viewModel.toastMessage.collectAsState()
 
             val snackbarHostState = remember { SnackbarHostState() }
@@ -68,7 +69,6 @@ class MainActivity : ComponentActivity() {
                 var showShareBottomSheet by remember { mutableStateOf(false) }
 
                 Scaffold(
-                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     containerColor = MaterialTheme.colorScheme.background,
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState) { data ->
@@ -99,61 +99,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    },
-                    bottomBar = {
-                        // Display navigation bar ONLY if hideBottomBar is false, and we are on primary screens
-                        val isMainScreen = currentRoute == "library" || currentRoute == "analytics"
-                        if (isMainScreen && !hideBottomBar) {
-                            Column {
-                                // Thin 0.5dp line separator
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outline, thickness = 0.5.dp)
-                                NavigationBar(
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    tonalElevation = 0.dp,
-                                    windowInsets = NavigationBarDefaults.windowInsets
-                                ) {
-                                    NavigationBarItem(
-                                        selected = currentRoute == "library",
-                                        onClick = { navController.navigate("library") { popUpTo("library") { inclusive = false } } },
-                                        icon = { Icon(Icons.Rounded.LibraryBooks, contentDescription = null) },
-                                        label = {
-                                            Text(
-                                                "Библиотека",
-                                                fontSize = 11.sp,
-                                                fontWeight = if (currentRoute == "library") FontWeight.Bold else FontWeight.Normal
-                                            )
-                                        },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = AccentOrange,
-                                            selectedTextColor = AccentOrange,
-                                            unselectedIconColor = Color.Gray,
-                                            unselectedTextColor = Color.Gray,
-                                            indicatorColor = Color.Transparent
-                                        )
-                                    )
-
-                                    NavigationBarItem(
-                                        selected = currentRoute == "analytics",
-                                        onClick = { navController.navigate("analytics") { popUpTo("library") } },
-                                        icon = { Icon(Icons.Rounded.BarChart, contentDescription = null) },
-                                        label = {
-                                            Text(
-                                                "Аналитика",
-                                                fontSize = 11.sp,
-                                                fontWeight = if (currentRoute == "analytics") FontWeight.Bold else FontWeight.Normal
-                                            )
-                                        },
-                                        colors = NavigationBarItemDefaults.colors(
-                                            selectedIconColor = AccentOrange,
-                                            selectedTextColor = AccentOrange,
-                                            unselectedIconColor = Color.Gray,
-                                            unselectedTextColor = Color.Gray,
-                                            indicatorColor = Color.Transparent
-                                        )
-                                    )
-                                }
-                            }
-                        }
                     }
                 ) { innerPadding ->
                     NavHost(
@@ -176,12 +121,16 @@ class MainActivity : ComponentActivity() {
                         composable("analytics") {
                             AnalyticsScreen(
                                 viewModel = viewModel,
-                                onNavigateToSettings = { navController.navigate("settings") }
+                                onNavigateToSettings = { navController.navigate("settings") },
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
                         composable("settings") {
-                            SettingsScreen(viewModel = viewModel)
+                            SettingsScreen(
+                                viewModel = viewModel,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable("add_book") {

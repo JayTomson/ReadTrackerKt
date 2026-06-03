@@ -37,8 +37,11 @@ fun ShareAnalyticsScreen(
     val showWebInStats by viewModel.showWebInStats.collectAsState()
     val shortenNumbers by viewModel.shortenNumbers.collectAsState()
 
-    val completedSeriesCount = books.count { it.status == 3 && !it.isWeb }
+    val completedSeriesCount = books.count { it.status == 3 && it.isSeries }
+    val completedSinglesCount = books.count { it.status == 3 && it.isSingle }
+    val completedHybridsCount = books.count { it.status == 3 && it.isHybridFormat }
     val completedWebCount = books.count { it.status == 3 && it.isWeb }
+
     val totalVolumesRead = books.sumOf { if (it.countVolumes && !it.isWeb) it.effectiveVolumes else 0 }
     val hasBooksWithVolumes = books.any { it.countVolumes && !it.isWeb }
     val totalWordsRead = books.sumOf { it.effectiveWords }
@@ -60,7 +63,6 @@ fun ShareAnalyticsScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Поделиться статистикой", fontWeight = FontWeight.Bold) },
@@ -144,6 +146,24 @@ fun ShareAnalyticsScreen(
                         color = Color(0xFF34D399)
                     )
 
+                    if (completedSinglesCount > 0) {
+                        ShareMetricRow(
+                            label = "Завершено синглов",
+                            value = completedSinglesCount.toString(),
+                            icon = Icons.Rounded.ContentCopy,
+                            color = Color(0xFF06B6D4)
+                        )
+                    }
+
+                    if (completedHybridsCount > 0) {
+                        ShareMetricRow(
+                            label = "Завершено LN+WN",
+                            value = completedHybridsCount.toString(),
+                            icon = Icons.Rounded.AutoStories,
+                            color = Color(0xFFFBBF24)
+                        )
+                    }
+
                     if (showWebInStats) {
                         ShareMetricRow(
                             label = "Завершено веб-новелл",
@@ -225,7 +245,9 @@ fun ShareListScreen(
     val showWebInStats by viewModel.showWebInStats.collectAsState()
     val shortenNumbers by viewModel.shortenNumbers.collectAsState()
 
-    val completedSeriesCount = books.count { it.status == 3 && !it.isWeb }
+    val completedSeriesCount = books.count { it.status == 3 && it.isSeries }
+    val completedSinglesCount = books.count { it.status == 3 && it.isSingle }
+    val completedHybridsCount = books.count { it.status == 3 && it.isHybridFormat }
     val completedWebCount = books.count { it.status == 3 && it.isWeb }
 
     val coroutineScope = rememberCoroutineScope()
@@ -245,7 +267,6 @@ fun ShareListScreen(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Поделиться списком", fontWeight = FontWeight.Bold) },
@@ -321,9 +342,17 @@ fun ShareListScreen(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 if (showWebInStats) {
+                    val labelText = remember(completedSeriesCount, completedSinglesCount, completedHybridsCount, completedWebCount) {
+                        buildString {
+                            append("Серий: $completedSeriesCount")
+                            if (completedSinglesCount > 0) append("  |  Синглов: $completedSinglesCount")
+                            if (completedHybridsCount > 0) append("  |  Гибридов: $completedHybridsCount")
+                            append("  |  Веб: $completedWebCount")
+                        }
+                    }
                     Text(
-                        "Серий завершено: $completedSeriesCount  |  Веб завершено: $completedWebCount",
-                        fontSize = 12.sp,
+                        labelText,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF34D399)
                     )
