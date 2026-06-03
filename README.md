@@ -1,21 +1,22 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# ReadTracker
 
-# Run and deploy your AI Studio app
+Удобный трекер чтения книг и легких новелл для Android, разработанный на Kotlin и Jetpack Compose. Приложение спроектировано с акцентом на точный учет прочитанного объема текста (в словах и томах), визуализацию прогресса, аналитику и гибкую кастомизацию.
 
-This contains everything you need to run your app locally.
+## Ключевые возможности
 
-View your app in AI Studio: https://ai.studio/apps/e1767bb4-759c-41fc-a667-db385a427335
+* **Учет и каталогизация**: ведение списка тайтлов с распределением по статусам («Читаю», «В планах», «Завершено», «На паузе», «Брошено»). Детальный трекинг слов и глав по каждому тому.
+* **Полноценная аналитика**: наглядные графики и карточки с общей статистикой — общее количество прочитанных слов за всё время, число прочитанных томов, завершенных франшиз и веб-новелл, а также интерактивные прогресс-бары.
+* **Кастомизация UI**: поддержка трех тем оформления (AMOLED, Тёмная и Светлая темы) с использованием динамического оранжевого акцента и аккуратным Material 3 дизайном.
+* **Поделиться прогрессом**: генерация стильных карточек со статистикой или списком книг для удобного экспорта и демонстрации в соцсетях.
+* **Резервное копирование**: импорт и экспорт всей библиотеки через JSON-файлы.
 
-## Run Locally
+## Стек технологий
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+* **Язык**: Kotlin
+* **Интерфейс**: Jetpack Compose (Material Design 3, Plus Jakarta Sans)
+* **Архитектура**: MVVM (Model-View-ViewModel) + StateFlow
+* **Локальная БД**: Room database для быстрого и надежного хранения данных на устройстве
 
+---
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+*Изначально я писал это приложение через нейронки на Flutter, но так как появилась возможность в AI Studio делать андроид приложение, решил переписать его под Котлин. Вроде как норм вышло, мне даже больше нравится, чем на Flutter, но если хотите попробовать приложение на Flutter, держите ссылку: [ссылка]*
