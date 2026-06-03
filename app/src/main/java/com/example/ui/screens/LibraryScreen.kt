@@ -82,6 +82,7 @@ fun LibraryScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
@@ -102,12 +103,13 @@ fun LibraryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .statusBarsPadding()
         ) {
-            // Unified header Row for precise spacing
+            // Unified header Row for precise spacing close to status bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 12.dp, top = 8.dp, bottom = 0.dp),
+                    .padding(start = 16.dp, end = 12.dp, top = 2.dp, bottom = 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
