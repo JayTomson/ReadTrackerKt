@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
             val viewModel: ReadTrackerViewModel = viewModel()
             val themeMode by viewModel.themeMode.collectAsState()
             val toastMessage by viewModel.toastMessage.collectAsState()
+            val disableAnimations by viewModel.disableAnimations.collectAsState()
 
             val snackbarHostState = remember { SnackbarHostState() }
             val scope = rememberCoroutineScope()
@@ -105,7 +107,11 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = "library",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        enterTransition = { if (disableAnimations) EnterTransition.None else fadeIn(animationSpec = tween(220)) },
+                        exitTransition = { if (disableAnimations) ExitTransition.None else fadeOut(animationSpec = tween(220)) },
+                        popEnterTransition = { if (disableAnimations) EnterTransition.None else fadeIn(animationSpec = tween(220)) },
+                        popExitTransition = { if (disableAnimations) ExitTransition.None else fadeOut(animationSpec = tween(220)) }
                     ) {
                         composable("library") {
                             LibraryScreen(

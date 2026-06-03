@@ -53,6 +53,7 @@ fun LibraryScreen(
     val badgeLayoutMode by viewModel.badgeLayoutMode.collectAsState()
     val enableAdaptationStart by viewModel.enableAdaptationStart.collectAsState()
     val showWebChapters by viewModel.showWebChapters.collectAsState()
+    val cardSpacing by viewModel.cardSpacing.collectAsState()
     
     val savedTabIndex by viewModel.savedTabIndex.collectAsState()
     
@@ -258,6 +259,7 @@ fun LibraryScreen(
                             badgeLayoutMode = badgeLayoutMode,
                             enableAdaptationStart = enableAdaptationStart,
                             showWebChapters = showWebChapters,
+                            cardSpacing = cardSpacing,
                             onClick = { onNavigateToEdit(book.id) },
                             onLongClick = { bookToDelete = book }
                         )
@@ -323,6 +325,7 @@ fun BookRowItem(
     badgeLayoutMode: Int,
     enableAdaptationStart: Boolean,
     showWebChapters: Boolean,
+    cardSpacing: Float,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -374,7 +377,8 @@ fun BookRowItem(
 
             // 2. Middle summary area (Expanded)
             Column(
-                modifier = Modifier.weight(1.0f)
+                modifier = Modifier.weight(1.0f),
+                verticalArrangement = Arrangement.spacedBy(cardSpacing.dp)
             ) {
                 // Line 1: Title only (takes full available width)
                 Text(
@@ -383,10 +387,9 @@ fun BookRowItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 14.sp
                 )
-
-                Spacer(modifier = Modifier.height(1.dp))
 
                 // Line 2: Status Indicator only
                 Row(
@@ -494,7 +497,6 @@ fun BookRowItem(
 
                 // Line 4: Bookmark - bottom mode
                 if (showBookmarks && bookmarkPosition == 0 && !book.currentBookmark.isNullOrBlank()) {
-                     Spacer(modifier = Modifier.height(4.dp))
                      Row(
                          modifier = Modifier.fillMaxWidth(),
                          verticalAlignment = Alignment.CenterVertically
@@ -625,7 +627,8 @@ fun BookRowItem(
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(
-                modifier = Modifier.weight(1.0f)
+                modifier = Modifier.weight(1.0f),
+                verticalArrangement = Arrangement.spacedBy(cardSpacing.dp)
             ) {
                 // Line 1: Title only
                 Text(
@@ -634,7 +637,8 @@ fun BookRowItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 14.sp
                 )
 
                 // Line 2: Progress indicators
@@ -724,7 +728,6 @@ fun BookRowItem(
 
                 // Line 3: Bookmark - bottom mode
                 if (showBookmarks && bookmarkPosition == 0 && !book.currentBookmark.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(2.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically

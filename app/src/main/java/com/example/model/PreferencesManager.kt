@@ -15,16 +15,16 @@ class PreferencesManager(context: Context) {
     private val _shortenNumbers = MutableStateFlow(prefs.getBoolean("shortenNumbers", false))
     val shortenNumbers: StateFlow<Boolean> = _shortenNumbers
 
-    private val _showShareButton = MutableStateFlow(prefs.getBoolean("showShareButton", true))
+    private val _showShareButton = MutableStateFlow(prefs.getBoolean("showShareButton", false))
     val showShareButton: StateFlow<Boolean> = _showShareButton
 
     private val _stackedStats = MutableStateFlow(prefs.getBoolean("stackedStats", false))
     val stackedStats: StateFlow<Boolean> = _stackedStats
 
-    private val _showCovers = MutableStateFlow(prefs.getBoolean("showCovers", true))
+    private val _showCovers = MutableStateFlow(prefs.getBoolean("showCovers", false))
     val showCovers: StateFlow<Boolean> = _showCovers
 
-    private val _showWebChapters = MutableStateFlow(prefs.getBoolean("showWebChapters", false))
+    private val _showWebChapters = MutableStateFlow(prefs.getBoolean("showWebChapters", true))
     val showWebChapters: StateFlow<Boolean> = _showWebChapters
 
     private val _showBookmarks = MutableStateFlow(prefs.getBoolean("showBookmarks", true))
@@ -56,6 +56,12 @@ class PreferencesManager(context: Context) {
 
     private val _savedTabIndex = MutableStateFlow(prefs.getInt("savedTabIndex", 0))
     val savedTabIndex: StateFlow<Int> = _savedTabIndex
+
+    private val _disableAnimations = MutableStateFlow(prefs.getBoolean("disableAnimations", false))
+    val disableAnimations: StateFlow<Boolean> = _disableAnimations
+
+    private val _cardSpacing = MutableStateFlow(prefs.getFloat("cardSpacing", 2.0f))
+    val cardSpacing: StateFlow<Float> = _cardSpacing
 
     private val _books = MutableStateFlow(JsonParser.jsonToBooks(prefs.getString("books", "")))
     val books: StateFlow<List<Book>> = _books
@@ -138,6 +144,16 @@ class PreferencesManager(context: Context) {
     fun setSavedTabIndex(value: Int) {
         prefs.edit().putInt("savedTabIndex", value).apply()
         _savedTabIndex.value = value
+    }
+
+    fun setDisableAnimations(value: Boolean) {
+        prefs.edit().putBoolean("disableAnimations", value).apply()
+        _disableAnimations.value = value
+    }
+
+    fun setCardSpacing(value: Float) {
+        prefs.edit().putFloat("cardSpacing", value).apply()
+        _cardSpacing.value = value
     }
 
     fun saveBooks(value: List<Book>) {

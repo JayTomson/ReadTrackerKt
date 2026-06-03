@@ -47,6 +47,7 @@ fun SettingsScreen(
     val ratingScale by viewModel.ratingScale.collectAsState()
     val badgeLayoutMode by viewModel.badgeLayoutMode.collectAsState()
     val analyticsShowMode by viewModel.analyticsShowMode.collectAsState()
+    val disableAnimations by viewModel.disableAnimations.collectAsState()
 
     val pendingImportBooks by viewModel.pendingImportBooks.collectAsState()
 
@@ -264,6 +265,13 @@ fun SettingsScreen(
                     subtitle = if (showWebChapters) "Показывать X/Y гл. на карточках" else "Прогресс глав скрыт в списке",
                     checked = showWebChapters,
                     onCheckedChange = { viewModel.setShowWebChapters(it) }
+                )
+                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                SwitchRow(
+                    title = "Отключение анимаций",
+                    subtitle = if (disableAnimations) "Анимации переходов выключены" else "Плавные переходы между страницами",
+                    checked = disableAnimations,
+                    onCheckedChange = { viewModel.setDisableAnimations(it) }
                 )
             }
 
