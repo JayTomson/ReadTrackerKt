@@ -100,28 +100,33 @@ fun AddBookScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(
-                title = { Text("Добавить тайтл", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (currentStep > 1) {
-                            currentStep--
-                        } else {
-                            onNavigateBack()
+            Column {
+                Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
+                TopAppBar(
+                    title = { Text("Добавить тайтл", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            if (currentStep > 1) {
+                                currentStep--
+                            } else {
+                                onNavigateBack()
+                            }
+                        }) {
+                            Icon(
+                                imageVector = if (currentStep == 1) Icons.Rounded.Close else Icons.Rounded.ArrowBack,
+                                contentDescription = "Назад/Закрыть",
+                                tint = AccentOrange
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = if (currentStep == 1) Icons.Rounded.Close else Icons.Rounded.ArrowBack,
-                            contentDescription = "Назад/Закрыть",
-                            tint = AccentOrange
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    },
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
                 )
-            )
+            }
         },
         bottomBar = {
             // Footer bottom button

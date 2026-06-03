@@ -127,15 +127,18 @@ fun EditBookScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            TopAppBar(
-                title = { Text("Редактировать", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Назад", tint = AccentOrange)
-                    }
-                },
-                actions = {
+            Column {
+                Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
+                TopAppBar(
+                    title = { Text("Редактировать", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Назад", tint = AccentOrange)
+                        }
+                    },
+                    actions = {
                     IconButton(onClick = {
                         if (title.isBlank()) {
                             viewModel.showToast("Название тайтла не может быть пустым", isSuccess = false)
@@ -195,11 +198,13 @@ fun EditBookScreen(
                         Icon(imageVector = Icons.Rounded.Check, contentDescription = "Сохранить", tint = AccentOrange)
                     }
                 },
+                windowInsets = WindowInsets(0, 0, 0, 0),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
+    }
     ) { innerPadding ->
         Column(
             modifier = Modifier

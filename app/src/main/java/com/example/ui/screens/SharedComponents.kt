@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -153,3 +155,19 @@ fun ShareOptionTile(
         )
     }
 }
+
+@Composable
+fun getAdaptiveStatusBarPadding(): Dp {
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    return remember(statusBarHeight) {
+        if (statusBarHeight > 30.dp) {
+            // For devices with physically thick status bars (Pixel 6, notches, cutouts),
+            // we reduce the excessive empty padding so that the content is pulled up beautifully
+            // closer to the system status icons without any overlap risk.
+            (statusBarHeight - 14.dp).coerceAtLeast(24.dp)
+        } else {
+            statusBarHeight.coerceAtLeast(8.dp)
+        }
+    }
+}
+

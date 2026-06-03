@@ -103,7 +103,7 @@ fun LibraryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
+                .padding(top = getAdaptiveStatusBarPadding())
         ) {
             // Unified header Row for precise spacing close to status bar
             Row(
