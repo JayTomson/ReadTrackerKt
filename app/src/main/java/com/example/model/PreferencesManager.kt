@@ -63,6 +63,9 @@ class PreferencesManager(context: Context) {
     private val _cardSpacing = MutableStateFlow(prefs.getFloat("cardSpacing", 2.0f))
     val cardSpacing: StateFlow<Float> = _cardSpacing
 
+    private val _titleFontSize = MutableStateFlow(prefs.getFloat("titleFontSize", 14.0f))
+    val titleFontSize: StateFlow<Float> = _titleFontSize
+
     private val _books = MutableStateFlow(JsonParser.jsonToBooks(prefs.getString("books", "")))
     val books: StateFlow<List<Book>> = _books
 
@@ -154,6 +157,11 @@ class PreferencesManager(context: Context) {
     fun setCardSpacing(value: Float) {
         prefs.edit().putFloat("cardSpacing", value).apply()
         _cardSpacing.value = value
+    }
+
+    fun setTitleFontSize(value: Float) {
+        prefs.edit().putFloat("titleFontSize", value).apply()
+        _titleFontSize.value = value
     }
 
     fun saveBooks(value: List<Book>) {

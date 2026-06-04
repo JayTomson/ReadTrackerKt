@@ -44,6 +44,7 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     val savedTabIndex: StateFlow<Int> = prefsManager.savedTabIndex
     val disableAnimations: StateFlow<Boolean> = prefsManager.disableAnimations
     val cardSpacing: StateFlow<Float> = prefsManager.cardSpacing
+    val titleFontSize: StateFlow<Float> = prefsManager.titleFontSize
 
     // Notification State
     private val _toastMessage = MutableStateFlow<Pair<String, Boolean>?>(null) // Msg to isSuccess
@@ -83,6 +84,7 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     fun setShowWebInStats(v: Boolean) = prefsManager.setShowWebInStats(v)
     fun setDisableAnimations(v: Boolean) = prefsManager.setDisableAnimations(v)
     fun setCardSpacing(v: Float) = prefsManager.setCardSpacing(v)
+    fun setTitleFontSize(v: Float) = prefsManager.setTitleFontSize(v)
 
     // Book Actions
     fun addBook(book: Book) {

@@ -49,6 +49,7 @@ fun SettingsScreen(
     val analyticsShowMode by viewModel.analyticsShowMode.collectAsState()
     val disableAnimations by viewModel.disableAnimations.collectAsState()
     val cardSpacing by viewModel.cardSpacing.collectAsState()
+    val titleFontSize by viewModel.titleFontSize.collectAsState()
 
     val pendingImportBooks by viewModel.pendingImportBooks.collectAsState()
 
@@ -282,6 +283,15 @@ fun SettingsScreen(
                     valueRange = 0.0f..10.0f,
                     onValueChange = { viewModel.setCardSpacing(it) }
                 )
+                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                SliderRow(
+                    title = "Размер названия тайтла",
+                    subtitle = "Настройка размера шрифта для заголовка на карточке",
+                    value = titleFontSize,
+                    valueRange = 10.0f..22.0f,
+                    valueSuffix = " sp",
+                    onValueChange = { viewModel.setTitleFontSize(it) }
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -487,6 +497,7 @@ fun SliderRow(
     subtitle: String,
     value: Float,
     valueRange: ClosedFloatingPointRange<Float>,
+    valueSuffix: String = "",
     onValueChange: (Float) -> Unit
 ) {
     Column(
@@ -503,7 +514,7 @@ fun SliderRow(
                 Text(subtitle, fontSize = 11.sp, color = Color.Gray)
             }
             Text(
-                text = "${value.toInt()}",
+                text = "${value.toInt()}$valueSuffix",
                 color = AccentOrange,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,

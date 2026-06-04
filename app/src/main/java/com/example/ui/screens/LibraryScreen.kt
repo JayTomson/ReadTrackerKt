@@ -54,6 +54,7 @@ fun LibraryScreen(
     val enableAdaptationStart by viewModel.enableAdaptationStart.collectAsState()
     val showWebChapters by viewModel.showWebChapters.collectAsState()
     val cardSpacing by viewModel.cardSpacing.collectAsState()
+    val titleFontSize by viewModel.titleFontSize.collectAsState()
     
     val savedTabIndex by viewModel.savedTabIndex.collectAsState()
     
@@ -260,6 +261,7 @@ fun LibraryScreen(
                             enableAdaptationStart = enableAdaptationStart,
                             showWebChapters = showWebChapters,
                             cardSpacing = cardSpacing,
+                            titleFontSize = titleFontSize,
                             onClick = { onNavigateToEdit(book.id) },
                             onLongClick = { bookToDelete = book }
                         )
@@ -326,6 +328,7 @@ fun BookRowItem(
     enableAdaptationStart: Boolean,
     showWebChapters: Boolean,
     cardSpacing: Float,
+    titleFontSize: Float,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -345,7 +348,7 @@ fun BookRowItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
-                .padding(horizontal = 10.dp, vertical = (5f + (cardSpacing / 2f)).dp),
+                .padding(horizontal = 10.dp, vertical = (8f + cardSpacing).dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 1. Cover
@@ -383,7 +386,7 @@ fun BookRowItem(
                 // Line 1: Title only (takes full available width)
                 Text(
                     text = book.title,
-                    fontSize = 13.sp,
+                    fontSize = titleFontSize.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
@@ -611,14 +614,14 @@ fun BookRowItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
-                .padding(horizontal = 12.dp, vertical = (5f + (cardSpacing / 2f)).dp),
+                .padding(horizontal = 12.dp, vertical = (8f + cardSpacing).dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Status bar strip on extreme left
             Box(
                 modifier = Modifier
                     .width(3.dp)
-                    .height((24f + cardSpacing).dp)
+                    .height((28f + cardSpacing * 1.5f + (titleFontSize - 14f)).dp)
                     .clip(RoundedCornerShape(2.dp))
                     .background(statusColor)
             )
@@ -632,7 +635,7 @@ fun BookRowItem(
                 // Line 1: Title only
                 Text(
                     text = book.title,
-                    fontSize = 13.sp,
+                    fontSize = titleFontSize.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
