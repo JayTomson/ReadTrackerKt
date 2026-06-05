@@ -21,6 +21,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 
+// Hex Color parsing helper
+fun parseHexColor(hex: String, default: Color): Color {
+    return try {
+        val cleaned = hex.trim().replace("#", "").uppercase()
+        if (cleaned.length == 6) {
+            val rgb = cleaned.toLong(16)
+            Color(0xFF000000 or rgb)
+        } else if (cleaned.length == 8) {
+            val argb = cleaned.toLong(16)
+            Color(argb)
+        } else {
+            default
+        }
+    } catch (_: Exception) {
+        default
+    }
+}
+
+// Convert Color to Hex string
+fun ColorToHex(color: Color): String {
+    val r = (color.red * 255).toInt()
+    val g = (color.green * 255).toInt()
+    val b = (color.blue * 255).toInt()
+    return String.format("#%02X%02X%02X", r, g, b)
+}
+
 // Formatting Numbers Helper
 fun formatNumber(number: Int, shorten: Boolean): String {
     if (!shorten) {
@@ -33,15 +59,44 @@ fun formatNumber(number: Int, shorten: Boolean): String {
     }
 }
 
-// Get Color based on Status
-fun getStatusColor(status: Int): Color {
+// Get Color based on Status (with dynamic color overrides)
+fun getStatusColor(
+    status: Int,
+    plannedHex: String = "#60A5FA",
+    readingHex: String = "#34D399",
+    pausedHex: String = "#FBBF24",
+    completedHex: String = "#A78BFA",
+    droppedHex: String = "#F87171",
+    accentHex: String = "#FF9F0A"
+): Color {
     return when (status) {
-        0 -> StatusPlanned
-        1 -> StatusReading
-        2 -> StatusPaused
-        3 -> StatusCompleted
-        4 -> StatusDropped
-        else -> AccentOrange
+        0 -> parseHexColor(plannedHex, StatusPlanned)
+        1 -> parseHexColor(readingHex, StatusReading)
+        2 -> parseHexColor(pausedHex, StatusPaused)
+        3 -> parseHexColor(completedHex, StatusCompleted)
+        4 -> parseHexColor(droppedHex, StatusDropped)
+        else -> parseHexColor(accentHex, AccentOrange)
+    }
+}
+
+// Get Color based on Publication Format (with dynamic color overrides)
+fun getFormatColor(
+    isHybrid: Boolean,
+    isWeb: Boolean,
+    isSingle: Boolean,
+    isSeries: Boolean,
+    hybridHex: String = "#FF9F0A",
+    seriesHex: String = "#A78BFA",
+    webHex: String = "#FBBF24",
+    singleHex: String = "#FF9F0A",
+    accentHex: String = "#FF9F0A"
+): Color {
+    return when {
+         isHybrid -> parseHexColor(hybridHex, AccentOrange)
+         isWeb -> parseHexColor(webHex, Color(0xFFFBBF24))
+         isSingle -> parseHexColor(singleHex, parseHexColor(accentHex, AccentOrange))
+         isSeries -> parseHexColor(seriesHex, Color(0xFFA78BFA))
+         else -> parseHexColor(accentHex, AccentOrange)
     }
 }
 

@@ -46,6 +46,18 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     val cardSpacing: StateFlow<Float> = prefsManager.cardSpacing
     val titleFontSize: StateFlow<Float> = prefsManager.titleFontSize
 
+    // Custom colors
+    val colorAccent: StateFlow<String> = prefsManager.colorAccent
+    val colorFormatHybrid: StateFlow<String> = prefsManager.colorFormatHybrid
+    val colorFormatSeries: StateFlow<String> = prefsManager.colorFormatSeries
+    val colorFormatWeb: StateFlow<String> = prefsManager.colorFormatWeb
+    val colorFormatSingle: StateFlow<String> = prefsManager.colorFormatSingle
+    val colorStatusPlanned: StateFlow<String> = prefsManager.colorStatusPlanned
+    val colorStatusReading: StateFlow<String> = prefsManager.colorStatusReading
+    val colorStatusPaused: StateFlow<String> = prefsManager.colorStatusPaused
+    val colorStatusCompleted: StateFlow<String> = prefsManager.colorStatusCompleted
+    val colorStatusDropped: StateFlow<String> = prefsManager.colorStatusDropped
+
     // Notification State
     private val _toastMessage = MutableStateFlow<Pair<String, Boolean>?>(null) // Msg to isSuccess
     val toastMessage: StateFlow<Pair<String, Boolean>?> = _toastMessage.asStateFlow()
@@ -85,6 +97,18 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
     fun setDisableAnimations(v: Boolean) = prefsManager.setDisableAnimations(v)
     fun setCardSpacing(v: Float) = prefsManager.setCardSpacing(v)
     fun setTitleFontSize(v: Float) = prefsManager.setTitleFontSize(v)
+
+    fun setColorAccent(v: String) = prefsManager.setColorAccent(v)
+    fun setColorFormatHybrid(v: String) = prefsManager.setColorFormatHybrid(v)
+    fun setColorFormatSeries(v: String) = prefsManager.setColorFormatSeries(v)
+    fun setColorFormatWeb(v: String) = prefsManager.setColorFormatWeb(v)
+    fun setColorFormatSingle(v: String) = prefsManager.setColorFormatSingle(v)
+    fun setColorStatusPlanned(v: String) = prefsManager.setColorStatusPlanned(v)
+    fun setColorStatusReading(v: String) = prefsManager.setColorStatusReading(v)
+    fun setColorStatusPaused(v: String) = prefsManager.setColorStatusPaused(v)
+    fun setColorStatusCompleted(v: String) = prefsManager.setColorStatusCompleted(v)
+    fun setColorStatusDropped(v: String) = prefsManager.setColorStatusDropped(v)
+    fun resetColorsToDefault() = prefsManager.resetColorsToDefault()
 
     // Book Actions
     fun addBook(book: Book) {

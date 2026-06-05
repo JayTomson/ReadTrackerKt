@@ -66,6 +66,37 @@ class PreferencesManager(context: Context) {
     private val _titleFontSize = MutableStateFlow(prefs.getFloat("titleFontSize", 14.0f))
     val titleFontSize: StateFlow<Float> = _titleFontSize
 
+    // Custom colors flows
+    private val _colorAccent = MutableStateFlow(prefs.getString("colorAccent", "#FF9F0A") ?: "#FF9F0A")
+    val colorAccent: StateFlow<String> = _colorAccent
+
+    private val _colorFormatHybrid = MutableStateFlow(prefs.getString("colorFormatHybrid", "#FF9F0A") ?: "#FF9F0A")
+    val colorFormatHybrid: StateFlow<String> = _colorFormatHybrid
+
+    private val _colorFormatSeries = MutableStateFlow(prefs.getString("colorFormatSeries", "#A78BFA") ?: "#A78BFA")
+    val colorFormatSeries: StateFlow<String> = _colorFormatSeries
+
+    private val _colorFormatWeb = MutableStateFlow(prefs.getString("colorFormatWeb", "#FBBF24") ?: "#FBBF24")
+    val colorFormatWeb: StateFlow<String> = _colorFormatWeb
+
+    private val _colorFormatSingle = MutableStateFlow(prefs.getString("colorFormatSingle", "#FF9F0A") ?: "#FF9F0A")
+    val colorFormatSingle: StateFlow<String> = _colorFormatSingle
+
+    private val _colorStatusPlanned = MutableStateFlow(prefs.getString("colorStatusPlanned", "#60A5FA") ?: "#60A5FA")
+    val colorStatusPlanned: StateFlow<String> = _colorStatusPlanned
+
+    private val _colorStatusReading = MutableStateFlow(prefs.getString("colorStatusReading", "#34D399") ?: "#34D399")
+    val colorStatusReading: StateFlow<String> = _colorStatusReading
+
+    private val _colorStatusPaused = MutableStateFlow(prefs.getString("colorStatusPaused", "#FBBF24") ?: "#FBBF24")
+    val colorStatusPaused: StateFlow<String> = _colorStatusPaused
+
+    private val _colorStatusCompleted = MutableStateFlow(prefs.getString("colorStatusCompleted", "#A78BFA") ?: "#A78BFA")
+    val colorStatusCompleted: StateFlow<String> = _colorStatusCompleted
+
+    private val _colorStatusDropped = MutableStateFlow(prefs.getString("colorStatusDropped", "#F87171") ?: "#F87171")
+    val colorStatusDropped: StateFlow<String> = _colorStatusDropped
+
     private val _books = MutableStateFlow(JsonParser.jsonToBooks(prefs.getString("books", "")))
     val books: StateFlow<List<Book>> = _books
 
@@ -162,6 +193,81 @@ class PreferencesManager(context: Context) {
     fun setTitleFontSize(value: Float) {
         prefs.edit().putFloat("titleFontSize", value).apply()
         _titleFontSize.value = value
+    }
+
+    fun setColorAccent(value: String) {
+        prefs.edit().putString("colorAccent", value).apply()
+        _colorAccent.value = value
+    }
+
+    fun setColorFormatHybrid(value: String) {
+        prefs.edit().putString("colorFormatHybrid", value).apply()
+        _colorFormatHybrid.value = value
+    }
+
+    fun setColorFormatSeries(value: String) {
+        prefs.edit().putString("colorFormatSeries", value).apply()
+        _colorFormatSeries.value = value
+    }
+
+    fun setColorFormatWeb(value: String) {
+        prefs.edit().putString("colorFormatWeb", value).apply()
+        _colorFormatWeb.value = value
+    }
+
+    fun setColorFormatSingle(value: String) {
+        prefs.edit().putString("colorFormatSingle", value).apply()
+        _colorFormatSingle.value = value
+    }
+
+    fun setColorStatusPlanned(value: String) {
+        prefs.edit().putString("colorStatusPlanned", value).apply()
+        _colorStatusPlanned.value = value
+    }
+
+    fun setColorStatusReading(value: String) {
+        prefs.edit().putString("colorStatusReading", value).apply()
+        _colorStatusReading.value = value
+    }
+
+    fun setColorStatusPaused(value: String) {
+        prefs.edit().putString("colorStatusPaused", value).apply()
+        _colorStatusPaused.value = value
+    }
+
+    fun setColorStatusCompleted(value: String) {
+        prefs.edit().putString("colorStatusCompleted", value).apply()
+        _colorStatusCompleted.value = value
+    }
+
+    fun setColorStatusDropped(value: String) {
+        prefs.edit().putString("colorStatusDropped", value).apply()
+        _colorStatusDropped.value = value
+    }
+
+    fun resetColorsToDefault() {
+        prefs.edit()
+            .putString("colorAccent", "#FF9F0A")
+            .putString("colorFormatHybrid", "#FF9F0A")
+            .putString("colorFormatSeries", "#A78BFA")
+            .putString("colorFormatWeb", "#FBBF24")
+            .putString("colorFormatSingle", "#FF9F0A")
+            .putString("colorStatusPlanned", "#60A5FA")
+            .putString("colorStatusReading", "#34D399")
+            .putString("colorStatusPaused", "#FBBF24")
+            .putString("colorStatusCompleted", "#A78BFA")
+            .putString("colorStatusDropped", "#F87171")
+            .apply()
+        _colorAccent.value = "#FF9F0A"
+        _colorFormatHybrid.value = "#FF9F0A"
+        _colorFormatSeries.value = "#A78BFA"
+        _colorFormatWeb.value = "#FBBF24"
+        _colorFormatSingle.value = "#FF9F0A"
+        _colorStatusPlanned.value = "#60A5FA"
+        _colorStatusReading.value = "#34D399"
+        _colorStatusPaused.value = "#FBBF24"
+        _colorStatusCompleted.value = "#A78BFA"
+        _colorStatusDropped.value = "#F87171"
     }
 
     fun saveBooks(value: List<Book>) {

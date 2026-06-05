@@ -57,6 +57,18 @@ fun LibraryScreen(
     val titleFontSize by viewModel.titleFontSize.collectAsState()
     
     val savedTabIndex by viewModel.savedTabIndex.collectAsState()
+
+    // Dynamic colors state collection
+    val colorAccentHex by viewModel.colorAccent.collectAsState()
+    val colorFormatHybridHex by viewModel.colorFormatHybrid.collectAsState()
+    val colorFormatSeriesHex by viewModel.colorFormatSeries.collectAsState()
+    val colorFormatWebHex by viewModel.colorFormatWeb.collectAsState()
+    val colorFormatSingleHex by viewModel.colorFormatSingle.collectAsState()
+    val colorStatusPlannedHex by viewModel.colorStatusPlanned.collectAsState()
+    val colorStatusReadingHex by viewModel.colorStatusReading.collectAsState()
+    val colorStatusPausedHex by viewModel.colorStatusPaused.collectAsState()
+    val colorStatusCompletedHex by viewModel.colorStatusCompleted.collectAsState()
+    val colorStatusDroppedHex by viewModel.colorStatusDropped.collectAsState()
     
     var bookToDelete by remember { mutableStateOf<Book?>(null) }
 
@@ -88,7 +100,7 @@ fun LibraryScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAdd,
-                containerColor = AccentOrange,
+                containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = Color.White,
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -136,7 +148,7 @@ fun LibraryScreen(
                         Icon(
                             imageVector = Icons.Rounded.Analytics,
                             contentDescription = "Аналитика",
-                            tint = AccentOrange,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -150,7 +162,7 @@ fun LibraryScreen(
                             Icon(
                                 imageVector = Icons.Rounded.IosShare,
                                 contentDescription = "Поделиться",
-                                tint = AccentOrange,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -183,7 +195,7 @@ fun LibraryScreen(
                             text = name,
                             fontSize = 14.sp,
                             fontWeight = if (isSelected) FontWeight.W800 else FontWeight.W500,
-                            color = if (isSelected) AccentOrange else Color.Gray,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
                             modifier = Modifier.padding(bottom = 2.dp)
                         )
                         // Underline indicator
@@ -191,7 +203,7 @@ fun LibraryScreen(
                             modifier = Modifier
                                 .height(2.dp)
                                 .width(if (isSelected) 18.dp else 0.dp)
-                                .background(AccentOrange, RoundedCornerShape(1.dp))
+                                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(1.dp))
                         )
                     }
                 }
@@ -215,13 +227,13 @@ fun LibraryScreen(
                             modifier = Modifier
                                 .size(80.dp)
                                 .clip(CircleShape)
-                                .background(AccentOrange.copy(alpha = 0.12f)),
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.MenuBook,
                                 contentDescription = null,
-                                tint = AccentOrange,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(40.dp)
                             )
                         }
@@ -263,7 +275,17 @@ fun LibraryScreen(
                             cardSpacing = cardSpacing,
                             titleFontSize = titleFontSize,
                             onClick = { onNavigateToEdit(book.id) },
-                            onLongClick = { bookToDelete = book }
+                            onLongClick = { bookToDelete = book },
+                            accentHex = colorAccentHex,
+                            hybridHex = colorFormatHybridHex,
+                            seriesHex = colorFormatSeriesHex,
+                            webHex = colorFormatWebHex,
+                            singleHex = colorFormatSingleHex,
+                            plannedHex = colorStatusPlannedHex,
+                            readingHex = colorStatusReadingHex,
+                            pausedHex = colorStatusPausedHex,
+                            completedHex = colorStatusCompletedHex,
+                            droppedHex = colorStatusDroppedHex
                         )
                     }
                 }
@@ -330,9 +352,19 @@ fun BookRowItem(
     cardSpacing: Float,
     titleFontSize: Float,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    accentHex: String = "#FF9F0A",
+    hybridHex: String = "#FF9F0A",
+    seriesHex: String = "#A78BFA",
+    webHex: String = "#FBBF24",
+    singleHex: String = "#FF9F0A",
+    plannedHex: String = "#60A5FA",
+    readingHex: String = "#34D399",
+    pausedHex: String = "#FBBF24",
+    completedHex: String = "#A78BFA",
+    droppedHex: String = "#F87171"
 ) {
-    val statusColor = getStatusColor(book.status)
+    val statusColor = getStatusColor(book.status, plannedHex, readingHex, pausedHex, completedHex, droppedHex, accentHex)
     val cardBackground = MaterialTheme.colorScheme.surface
     val shorten = false // Standard formatting inside rows
 
@@ -533,25 +565,26 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = AccentOrange
+                            color = parseHexColor(accentHex, AccentOrange)
                         )
                     }
 
+                    val badgeColor = getFormatColor(book.isHybridFormat, book.isWeb, book.isSingle, book.isSeries, hybridHex, seriesHex, webHex, singleHex, accentHex)
                     when {
-                        book.isHybridFormat -> BookBadge("LN+WN", AccentOrange)
-                        book.isWeb -> BookBadge("Веб", Color(0xFFFBBF24))
-                        book.isSingle -> BookBadge("Сингл", AccentOrange)
-                        book.isSeries -> BookBadge("Серия", Color(0xFFA78BFA))
+                        book.isHybridFormat -> BookBadge("LN+WN", badgeColor)
+                        book.isWeb -> BookBadge("Веб", badgeColor)
+                        book.isSingle -> BookBadge("Сингл", badgeColor)
+                        book.isSeries -> BookBadge("Серия", badgeColor)
                     }
                     if (book.isOngoing) {
-                        BookBadge("Онг.", Color(0xFF34D399))
+                        BookBadge("Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("Старт: т. ${book.startVolume}", Color(0xFF34D399))
+                            BookBadge("Старт: т. ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("Старт: гл. ${book.startChapter}", Color(0xFF34D399))
+                            BookBadge("Старт: гл. ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
                 }
@@ -563,7 +596,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = AccentOrange
+                            color = parseHexColor(accentHex, AccentOrange)
                         )
                     }
 
@@ -571,22 +604,23 @@ fun BookRowItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val badgeColor = getFormatColor(book.isHybridFormat, book.isWeb, book.isSingle, book.isSeries, hybridHex, seriesHex, webHex, singleHex, accentHex)
                         when {
-                            book.isHybridFormat -> BookBadge("LN+WN", AccentOrange)
-                            book.isWeb -> BookBadge("Веб", Color(0xFFFBBF24))
-                            book.isSingle -> BookBadge("Сингл", AccentOrange)
-                            book.isSeries -> BookBadge("Серия", Color(0xFFA78BFA))
+                            book.isHybridFormat -> BookBadge("LN+WN", badgeColor)
+                            book.isWeb -> BookBadge("Веб", badgeColor)
+                            book.isSingle -> BookBadge("Сингл", badgeColor)
+                            book.isSeries -> BookBadge("Серия", badgeColor)
                         }
                         if (book.isOngoing) {
-                            BookBadge("Онг.", Color(0xFF34D399))
+                            BookBadge("Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("Старт: т. ${book.startVolume}", Color(0xFF34D399))
+                            BookBadge("Старт: т. ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("Старт: гл. ${book.startChapter}", Color(0xFF34D399))
+                            BookBadge("Старт: гл. ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
                 }
@@ -763,25 +797,26 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = AccentOrange
+                            color = parseHexColor(accentHex, AccentOrange)
                         )
                     }
 
+                    val badgeColor = getFormatColor(book.isHybridFormat, book.isWeb, book.isSingle, book.isSeries, hybridHex, seriesHex, webHex, singleHex, accentHex)
                     when {
-                        book.isHybridFormat -> BookBadge("LN+WN", AccentOrange)
-                        book.isWeb -> BookBadge("Веб", Color(0xFFFBBF24))
-                        book.isSingle -> BookBadge("Сингл", AccentOrange)
-                        book.isSeries -> BookBadge("Серия", Color(0xFFA78BFA))
+                        book.isHybridFormat -> BookBadge("LN+WN", badgeColor)
+                        book.isWeb -> BookBadge("Веб", badgeColor)
+                        book.isSingle -> BookBadge("Сингл", badgeColor)
+                        book.isSeries -> BookBadge("Серия", badgeColor)
                     }
                     if (book.isOngoing) {
-                        BookBadge("Онг.", Color(0xFF34D399))
+                        BookBadge("Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("Старт: т. ${book.startVolume}", Color(0xFF34D399))
+                            BookBadge("Старт: т. ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("Старт: гл. ${book.startChapter}", Color(0xFF34D399))
+                            BookBadge("Старт: гл. ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
                 }
@@ -793,7 +828,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = AccentOrange
+                            color = parseHexColor(accentHex, AccentOrange)
                         )
                     }
 
@@ -801,22 +836,23 @@ fun BookRowItem(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        val badgeColor = getFormatColor(book.isHybridFormat, book.isWeb, book.isSingle, book.isSeries, hybridHex, seriesHex, webHex, singleHex, accentHex)
                         when {
-                            book.isHybridFormat -> BookBadge("LN+WN", AccentOrange)
-                            book.isWeb -> BookBadge("Веб", Color(0xFFFBBF24))
-                            book.isSingle -> BookBadge("Сингл", AccentOrange)
-                            book.isSeries -> BookBadge("Серия", Color(0xFFA78BFA))
+                            book.isHybridFormat -> BookBadge("LN+WN", badgeColor)
+                            book.isWeb -> BookBadge("Веб", badgeColor)
+                            book.isSingle -> BookBadge("Сингл", badgeColor)
+                            book.isSeries -> BookBadge("Серия", badgeColor)
                         }
                         if (book.isOngoing) {
-                            BookBadge("Онг.", Color(0xFF34D399))
+                            BookBadge("Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("Старт: т. ${book.startVolume}", Color(0xFF34D399))
+                            BookBadge("Старт: т. ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("Старт: гл. ${book.startChapter}", Color(0xFF34D399))
+                            BookBadge("Старт: гл. ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
                         }
                     }
                 }

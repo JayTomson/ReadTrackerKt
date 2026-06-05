@@ -42,12 +42,13 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun ReadTrackerTheme(
     themeMode: Int = 1, // 0 = AMOLED, 1 = Dark, 2 = Light
+    primaryColor: Color = AccentOrange,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when (themeMode) {
-        0 -> AmoledColorScheme
-        2 -> LightColorScheme
-        else -> DarkColorScheme
+        0 -> AmoledColorScheme.copy(primary = primaryColor)
+        2 -> LightColorScheme.copy(primary = primaryColor)
+        else -> DarkColorScheme.copy(primary = primaryColor)
     }
 
     MaterialTheme(

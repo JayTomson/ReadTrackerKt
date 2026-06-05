@@ -40,6 +40,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: ReadTrackerViewModel = viewModel()
             val themeMode by viewModel.themeMode.collectAsState()
+            val colorAccentHex by viewModel.colorAccent.collectAsState()
+            val customPrimary = remember(colorAccentHex) { parseHexColor(colorAccentHex, AccentOrange) }
             val toastMessage by viewModel.toastMessage.collectAsState()
             val disableAnimations by viewModel.disableAnimations.collectAsState()
 
@@ -62,7 +64,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            ReadTrackerTheme(themeMode = themeMode) {
+            ReadTrackerTheme(themeMode = themeMode, primaryColor = customPrimary) {
                 val navController = rememberNavController()
                 val currentBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = currentBackStackEntry?.destination?.route ?: "library"
@@ -76,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarHostState) { data ->
                             val isSuccess = data.visuals.actionLabel == "success"
-                            val bgAccentColor = if (isSuccess) AccentOrange else Color(0xFFF87171)
+                            val bgAccentColor = if (isSuccess) customPrimary else Color(0xFFF87171)
                             Snackbar(
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp, vertical = 20.dp)
@@ -206,7 +208,7 @@ class MainActivity : ComponentActivity() {
                                     title = "Аналитика",
                                     subtitle = "Карточка со статистикой",
                                     icon = Icons.Rounded.Analytics,
-                                    color = AccentOrange,
+                                    color = customPrimary,
                                     onClick = {
                                         showShareBottomSheet = false
                                         navController.navigate("share_analytics")
