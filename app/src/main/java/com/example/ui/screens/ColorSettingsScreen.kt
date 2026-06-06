@@ -65,50 +65,41 @@ fun ColorSettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        androidx.compose.foundation.lazy.LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            item {
-                InfoBanner()
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            InfoBanner()
+            Spacer(modifier = Modifier.height(16.dp))
 
-            item {
-                InterfaceColorGroup(viewModel)
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+            InterfaceColorGroup(viewModel)
+            Spacer(modifier = Modifier.height(20.dp))
 
-            item {
-                FormatTypesColorGroup(viewModel)
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+            FormatTypesColorGroup(viewModel)
+            Spacer(modifier = Modifier.height(20.dp))
 
-            item {
-                StatusesColorGroup(viewModel)
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            StatusesColorGroup(viewModel)
+            Spacer(modifier = Modifier.height(24.dp))
 
-            item {
-                Button(
-                    onClick = { showResetConfirmation = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                ) {
-                    Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Сбросить все цвета по умолчанию", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                }
-                Spacer(modifier = Modifier.height(40.dp))
+            Button(
+                onClick = { showResetConfirmation = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Сбросить все цвета по умолчанию", fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 
