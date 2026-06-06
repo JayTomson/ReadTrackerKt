@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -89,249 +90,258 @@ fun SettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(innerPadding),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
             
             // THEME GROUP
-            CategoryHeader("Тема")
-            CardGroup {
-                listOf(
-                    Triple(0, "AMOLED", Icons.Rounded.DarkMode),
-                    Triple(1, "Тёмная", Icons.Rounded.Brightness2),
-                    Triple(2, "Светлая", Icons.Rounded.WbSunny)
-                ).forEachIndexed { i, theme ->
-                    val optionMode = theme.first
-                    val isActive = themeMode == optionMode
+            item {
+                CategoryHeader("Тема")
+                CardGroup {
+                    listOf(
+                        Triple(0, "AMOLED", Icons.Rounded.DarkMode),
+                        Triple(1, "Тёмная", Icons.Rounded.Brightness2),
+                        Triple(2, "Светлая", Icons.Rounded.WbSunny)
+                    ).forEachIndexed { i, theme ->
+                        val optionMode = theme.first
+                        val isActive = themeMode == optionMode
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { viewModel.setThemeMode(optionMode) }
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = theme.third,
-                            contentDescription = null,
-                            tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = theme.second,
-                            fontSize = 15.sp,
-                            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
-                            modifier = Modifier.weight(1.0f)
-                        )
-                        Icon(
-                            imageVector = if (isActive) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
-                            contentDescription = null,
-                            tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { viewModel.setThemeMode(optionMode) }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = theme.third,
+                                contentDescription = null,
+                                tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = theme.second,
+                                fontSize = 15.sp,
+                                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
+                                modifier = Modifier.weight(1.0f)
+                            )
+                            Icon(
+                                imageVector = if (isActive) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
+                                contentDescription = null,
+                                tint = if (isActive) MaterialTheme.colorScheme.primary else Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
 
-                    if (i < 2) {
-                        HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                        if (i < 2) {
+                            HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+            }
 
             // ADVANCED FUNCTIONS GROUP
-            CategoryHeader("Дополнительный функционал")
-            CardGroup {
-                // Bookmarks
-                SwitchRow(
-                    title = "Закладки",
-                    subtitle = if (showBookmarks) "Поле введения текущей главы без влияния на статистику" else "Поле заметок отключено",
-                    checked = showBookmarks,
-                    onCheckedChange = { viewModel.setShowBookmarks(it) }
-                )
-
-                if (showBookmarks) {
-                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                    // Bookmark placement select row
-                    DropdownRow(
-                        title = "Расположение закладки",
-                        subtitle = "Положение текущей закладки в списке книг",
-                        options = listOf("Снизу" to 0, "В ряд" to 1),
-                        selectedValue = bookmarkPosition,
-                        onValueChange = { viewModel.setBookmarkPosition(it) }
+            item {
+                CategoryHeader("Дополнительный функционал")
+                CardGroup {
+                    // Bookmarks
+                    SwitchRow(
+                        title = "Закладки",
+                        subtitle = if (showBookmarks) "Поле введения текущей главы без влияния на статистику" else "Поле заметок отключено",
+                        checked = showBookmarks,
+                        onCheckedChange = { viewModel.setShowBookmarks(it) }
                     )
+
+                    if (showBookmarks) {
+                        HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                        // Bookmark placement select row
+                        DropdownRow(
+                            title = "Расположение закладки",
+                            subtitle = "Положение текущей закладки в списке книг",
+                            options = listOf("Снизу" to 0, "В ряд" to 1),
+                            selectedValue = bookmarkPosition,
+                            onValueChange = { viewModel.setBookmarkPosition(it) }
+                        )
+                    }
+
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+
+                    // Adaptations
+                    SwitchRow(
+                        title = "Читать после адаптации",
+                        subtitle = if (enableAdaptationStart) "Возможность указать том/главу, с которых вы начали" else "Функция \"Старт после адаптации\" отключена",
+                        checked = enableAdaptationStart,
+                        onCheckedChange = { viewModel.setEnableAdaptationStart(it) }
+                    )
+
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+
+                    // Hybrid mode
+                    SwitchRow(
+                        title = "Гибридный формат LN+WN",
+                        subtitle = if (enableHybrid) "Позволяет объединить LN и WN в одной карточке" else "Раздельные карточки томов и глав",
+                        checked = enableHybrid,
+                        onCheckedChange = { viewModel.setEnableHybrid(it) }
+                    )
+
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+
+                    // Ratings toggle
+                    SwitchRow(
+                        title = "Оценка тайтлов",
+                        subtitle = if (enableRating) "Возможность оценивать тайтлы" else "Функция выставления оценки отключена",
+                        checked = enableRating,
+                        onCheckedChange = { viewModel.setEnableRating(it) }
+                    )
+
+                    if (enableRating) {
+                        HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                        DropdownRow(
+                            title = "Шкала оценки",
+                            subtitle = "Инструмент шкалы градации оценок",
+                            options = listOf("5 звёзд" to 5, "10 звёзд" to 10),
+                            selectedValue = ratingScale,
+                            onValueChange = { viewModel.setRatingScale(it) }
+                        )
+                        HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                        DropdownRow(
+                            title = "Расположение оценки и типа",
+                            subtitle = "Выбрать, как располагать оценку и тип на карточке",
+                            options = listOf("В столбик" to 0, "В ряд" to 1),
+                            selectedValue = badgeLayoutMode,
+                            onValueChange = { viewModel.setBadgeLayoutMode(it) }
+                        )
+                    }
                 }
 
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-
-                // Adaptations
-                SwitchRow(
-                    title = "Читать после адаптации",
-                    subtitle = if (enableAdaptationStart) "Возможность указать том/главу, с которых вы начали" else "Функция \"Старт после адаптации\" отключена",
-                    checked = enableAdaptationStart,
-                    onCheckedChange = { viewModel.setEnableAdaptationStart(it) }
-                )
-
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-
-                // Hybrid mode
-                SwitchRow(
-                    title = "Гибридный формат LN+WN",
-                    subtitle = if (enableHybrid) "Позволяет объединить LN и WN в одной карточке" else "Раздельные карточки томов и глав",
-                    checked = enableHybrid,
-                    onCheckedChange = { viewModel.setEnableHybrid(it) }
-                )
-
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-
-                // Ratings toggle
-                SwitchRow(
-                    title = "Оценка тайтлов",
-                    subtitle = if (enableRating) "Возможность оценивать тайтлы" else "Функция выставления оценки отключена",
-                    checked = enableRating,
-                    onCheckedChange = { viewModel.setEnableRating(it) }
-                )
-
-                if (enableRating) {
-                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                    DropdownRow(
-                        title = "Шкала оценки",
-                        subtitle = "Инструмент шкалы градации оценок",
-                        options = listOf("5 звёзд" to 5, "10 звёзд" to 10),
-                        selectedValue = ratingScale,
-                        onValueChange = { viewModel.setRatingScale(it) }
-                    )
-                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                    DropdownRow(
-                        title = "Расположение оценки и типа",
-                        subtitle = "Выбрать, как располагать оценку и тип на карточке",
-                        options = listOf("В столбик" to 0, "В ряд" to 1),
-                        selectedValue = badgeLayoutMode,
-                        onValueChange = { viewModel.setBadgeLayoutMode(it) }
-                    )
-                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             // APPEARANCE GROUPS
-            CategoryHeader("Отображение")
-            CardGroup {
-                DropdownRow(
-                    title = "Показ в аналитике",
-                    subtitle = "Выбрать, какие типы отображать в отчётах",
-                    options = listOf(
-                        "Синглы и Веб" to 0,
-                        "Только синглы" to 1,
-                        "Только Веб" to 2,
-                        "Скрыто" to 3
-                    ),
-                    selectedValue = analyticsShowMode,
-                    onValueChange = { viewModel.setAnalyticsShowMode(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Обложки тайтлов",
-                    subtitle = if (showCovers) "Показывать обложки в списке" else "Компактный вид без обложек",
-                    checked = showCovers,
-                    onCheckedChange = { viewModel.setShowCovers(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Сокращать числа",
-                    subtitle = "Например: 150K вместо 150 000",
-                    checked = shortenNumbers,
-                    onCheckedChange = { viewModel.setShortenNumbers(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Широкие карточки статистики",
-                    subtitle = "Располагать метрики аналитики друг под другом",
-                    checked = stackedStats,
-                    onCheckedChange = { viewModel.setStackedStats(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Кнопка «Поделиться»",
-                    subtitle = "Отображать шторку экспорта в шапке библиотеки",
-                    checked = showShareButton,
-                    onCheckedChange = { viewModel.setShowShareButton(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Главы для Веб-романов",
-                    subtitle = if (showWebChapters) "Показывать X/Y гл. на карточках" else "Прогресс глав скрыт в списке",
-                    checked = showWebChapters,
-                    onCheckedChange = { viewModel.setShowWebChapters(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SwitchRow(
-                    title = "Отключение анимаций",
-                    subtitle = if (disableAnimations) "Анимации переходов выключены" else "Плавные переходы между страницами",
-                    checked = disableAnimations,
-                    onCheckedChange = { viewModel.setDisableAnimations(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SliderRow(
-                    title = "Расстояние в карточках",
-                    subtitle = "Настройка высоты и интервала строк внутри карточек",
-                    value = cardSpacing,
-                    valueRange = 0.0f..10.0f,
-                    onValueChange = { viewModel.setCardSpacing(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                SliderRow(
-                    title = "Размер названия тайтла",
-                    subtitle = "Настройка размера шрифта для заголовка на карточке",
-                    value = titleFontSize,
-                    valueRange = 10.0f..22.0f,
-                    valueSuffix = " sp",
-                    onValueChange = { viewModel.setTitleFontSize(it) }
-                )
+            item {
+                CategoryHeader("Отображение")
+                CardGroup {
+                    DropdownRow(
+                        title = "Показ в аналитике",
+                        subtitle = "Выбрать, какие типы отображать в отчётах",
+                        options = listOf(
+                            "Синглы и Веб" to 0,
+                            "Только синглы" to 1,
+                            "Только Веб" to 2,
+                            "Скрыто" to 3
+                        ),
+                        selectedValue = analyticsShowMode,
+                        onValueChange = { viewModel.setAnalyticsShowMode(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Обложки тайтлов",
+                        subtitle = if (showCovers) "Показывать обложки в списке" else "Компактный вид без обложек",
+                        checked = showCovers,
+                        onCheckedChange = { viewModel.setShowCovers(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Сокращать числа",
+                        subtitle = "Например: 150K вместо 150 000",
+                        checked = shortenNumbers,
+                        onCheckedChange = { viewModel.setShortenNumbers(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Широкие карточки статистики",
+                        subtitle = "Располагать метрики аналитики друг под другом",
+                        checked = stackedStats,
+                        onCheckedChange = { viewModel.setStackedStats(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Кнопка «Поделиться»",
+                        subtitle = "Отображать шторку экспорта в шапке библиотеки",
+                        checked = showShareButton,
+                        onCheckedChange = { viewModel.setShowShareButton(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Главы для Веб-романов",
+                        subtitle = if (showWebChapters) "Показывать X/Y гл. на карточках" else "Прогресс глав скрыт в списке",
+                        checked = showWebChapters,
+                        onCheckedChange = { viewModel.setShowWebChapters(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SwitchRow(
+                        title = "Отключение анимаций",
+                        subtitle = if (disableAnimations) "Анимации переходов выключены" else "Плавные переходы между страницами",
+                        checked = disableAnimations,
+                        onCheckedChange = { viewModel.setDisableAnimations(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SliderRow(
+                        title = "Расстояние в карточках",
+                        subtitle = "Настройка высоты и интервала строк внутри карточек",
+                        value = cardSpacing,
+                        valueRange = 0.0f..10.0f,
+                        onValueChange = { viewModel.setCardSpacing(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    SliderRow(
+                        title = "Размер названия тайтла",
+                        subtitle = "Настройка размера шрифта для заголовка на карточке",
+                        value = titleFontSize,
+                        valueRange = 10.0f..22.0f,
+                        valueSuffix = " sp",
+                        onValueChange = { viewModel.setTitleFontSize(it) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            item {
+                CategoryHeader("Настройки цвета")
+                CardGroup {
+                    ActionTile(
+                        title = "Кастомизация цветов",
+                        subtitle = "Настроить цвета интерфейса, типов и статусов",
+                        icon = Icons.Rounded.Palette,
+                        color = MaterialTheme.colorScheme.primary,
+                        onClick = onNavigateToColorSettings
+                    )
+                }
 
-            CategoryHeader("Настройки цвета")
-            CardGroup {
-                ActionTile(
-                    title = "Кастомизация цветов",
-                    subtitle = "Настроить цвета интерфейса, типов и статусов",
-                    icon = Icons.Rounded.Palette,
-                    color = MaterialTheme.colorScheme.primary,
-                    onClick = onNavigateToColorSettings
-                )
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             // FILE MANAGEMENT DATA ACTIONS GROUP
-            CategoryHeader("Данные")
-            CardGroup {
-                ActionTile(
-                    title = "Экспорт библиотеки",
-                    subtitle = "Сохранить в JSON-файл",
-                    icon = Icons.Rounded.UploadFile,
-                    color = Color(0xFF34D399),
-                    onClick = { viewModel.exportLibrary(context) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
-                ActionTile(
-                    title = "Импорт библиотеки",
-                    subtitle = "Загрузить из JSON-файла",
-                    icon = Icons.Rounded.DownloadForOffline,
-                    color = Color(0xFF60A5FA),
-                    onClick = { importFileLauncher.launch("application/json") }
-                )
-            }
+            item {
+                CategoryHeader("Данные")
+                CardGroup {
+                    ActionTile(
+                        title = "Экспорт библиотеки",
+                        subtitle = "Сохранить в JSON-файл",
+                        icon = Icons.Rounded.UploadFile,
+                        color = Color(0xFF34D399),
+                        onClick = { viewModel.exportLibrary(context) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.12f))
+                    ActionTile(
+                        title = "Импорт библиотеки",
+                        subtitle = "Загрузить из JSON-файла",
+                        icon = Icons.Rounded.DownloadForOffline,
+                        color = Color(0xFF60A5FA),
+                        onClick = { importFileLauncher.launch("application/json") }
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(40.dp))
+            }
         }
     }
 

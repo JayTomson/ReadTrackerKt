@@ -3,6 +3,7 @@ package com.example.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -74,113 +75,117 @@ fun ColorSettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(innerPadding),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            InfoBanner()
-
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                InfoBanner()
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             // GENERAL INTERFACE COLOR
-            CategoryHeader("Основной цвет приложения")
-            CardGroup {
-                ColorConfigRow(
-                    label = "Цвет акцента и кнопок",
-                    hexValue = colorAccentHex,
-                    onValueChange = { viewModel.setColorAccent(it) }
-                )
+            item {
+                CategoryHeader("Основной цвет приложения")
+                CardGroup {
+                    ColorConfigRow(
+                        label = "Цвет акцента и кнопок",
+                        hexValue = colorAccentHex,
+                        onValueChange = { viewModel.setColorAccent(it) }
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             // REVELANT TYPES COLORS
-            CategoryHeader("Типы изданий")
-            CardGroup {
-                ColorConfigRow(
-                    label = "LN+WN Гибрид",
-                    hexValue = colorFormatHybridHex,
-                    onValueChange = { viewModel.setColorFormatHybrid(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Серия томов",
-                    hexValue = colorFormatSeriesHex,
-                    onValueChange = { viewModel.setColorFormatSeries(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Веб-новелла (Web)",
-                    hexValue = colorFormatWebHex,
-                    onValueChange = { viewModel.setColorFormatWeb(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Сингл (Одиночная книга)",
-                    hexValue = colorFormatSingleHex,
-                    onValueChange = { viewModel.setColorFormatSingle(it) }
-                )
+            item {
+                CategoryHeader("Типы изданий")
+                CardGroup {
+                    ColorConfigRow(
+                        label = "LN+WN Гибрид",
+                        hexValue = colorFormatHybridHex,
+                        onValueChange = { viewModel.setColorFormatHybrid(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Серия томов",
+                        hexValue = colorFormatSeriesHex,
+                        onValueChange = { viewModel.setColorFormatSeries(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Веб-новелла (Web)",
+                        hexValue = colorFormatWebHex,
+                        onValueChange = { viewModel.setColorFormatWeb(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Сингл (Одиночная книга)",
+                        hexValue = colorFormatSingleHex,
+                        onValueChange = { viewModel.setColorFormatSingle(it) }
+                    )
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             // STATUSES OF READING
-            CategoryHeader("Статусы чтения")
-            CardGroup {
-                ColorConfigRow(
-                    label = "В планах",
-                    hexValue = colorStatusPlannedHex,
-                    onValueChange = { viewModel.setColorStatusPlanned(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Читаю",
-                    hexValue = colorStatusReadingHex,
-                    onValueChange = { viewModel.setColorStatusReading(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "На паузе",
-                    hexValue = colorStatusPausedHex,
-                    onValueChange = { viewModel.setColorStatusPaused(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Завершено",
-                    hexValue = colorStatusCompletedHex,
-                    onValueChange = { viewModel.setColorStatusCompleted(it) }
-                )
-                HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
-                ColorConfigRow(
-                    label = "Брошено",
-                    hexValue = colorStatusDroppedHex,
-                    onValueChange = { viewModel.setColorStatusDropped(it) }
-                )
+            item {
+                CategoryHeader("Статусы чтения")
+                CardGroup {
+                    ColorConfigRow(
+                        label = "В планах",
+                        hexValue = colorStatusPlannedHex,
+                        onValueChange = { viewModel.setColorStatusPlanned(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Читаю",
+                        hexValue = colorStatusReadingHex,
+                        onValueChange = { viewModel.setColorStatusReading(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "На паузе",
+                        hexValue = colorStatusPausedHex,
+                        onValueChange = { viewModel.setColorStatusPaused(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Завершено",
+                        hexValue = colorStatusCompletedHex,
+                        onValueChange = { viewModel.setColorStatusCompleted(it) }
+                    )
+                    HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
+                    ColorConfigRow(
+                        label = "Брошено",
+                        hexValue = colorStatusDroppedHex,
+                        onValueChange = { viewModel.setColorStatusDropped(it) }
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
 
             // Action: Reset Colors button at the bottom
-            Button(
-                onClick = { showResetConfirmation = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Сбросить все цвета по умолчанию", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            item {
+                Button(
+                    onClick = { showResetConfirmation = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Сбросить все цвета по умолчанию", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                }
+                Spacer(modifier = Modifier.height(40.dp))
             }
-
-            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 
