@@ -546,6 +546,8 @@ fun SliderRow(
     valueSuffix: String = "",
     onValueChange: (Float) -> Unit
 ) {
+    var sliderValue by remember(value) { androidx.compose.runtime.mutableFloatStateOf(value) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -560,7 +562,7 @@ fun SliderRow(
                 Text(subtitle, fontSize = 11.sp, color = Color.Gray)
             }
             Text(
-                text = "${value.toInt()}$valueSuffix",
+                text = "${sliderValue.toInt()}$valueSuffix",
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
@@ -569,8 +571,9 @@ fun SliderRow(
         }
         Spacer(modifier = Modifier.height(4.dp))
         Slider(
-            value = value,
-            onValueChange = onValueChange,
+            value = sliderValue,
+            onValueChange = { sliderValue = it },
+            onValueChangeFinished = { onValueChange(sliderValue) },
             valueRange = valueRange,
             colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
