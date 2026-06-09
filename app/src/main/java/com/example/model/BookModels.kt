@@ -74,6 +74,40 @@ data class Book(
     }
 }
 
+data class SettingsData(
+    val themeMode: Int = 1,
+    val shortenNumbers: Boolean = false,
+    val showShareButton: Boolean = false,
+    val stackedStats: Boolean = false,
+    val showCovers: Boolean = false,
+    val showWebChapters: Boolean = true,
+    val showBookmarks: Boolean = true,
+    val bookmarkPosition: Int = 0,
+    val enableAdaptationStart: Boolean = false,
+    val enableHybrid: Boolean = true,
+    val enableRating: Boolean = true,
+    val ratingScale: Int = 10,
+    val badgeLayoutMode: Int = 0,
+    val analyticsShowMode: Int = 0,
+    val showWebInStats: Boolean = true,
+    val disableAnimations: Boolean = false,
+    val cardSpacing: Float = 2.0f,
+    val titleFontSize: Float = 14.0f,
+    val libraryTitleFontSize: Float = 22.0f,
+    val filterSpacing: Float = 0.0f,
+    val colorAccent: String = "#FF9F0A",
+    val colorFormatHybrid: String = "#FF9F0A",
+    val colorFormatSeries: String = "#A78BFA",
+    val colorFormatWeb: String = "#FBBF24",
+    val colorFormatSingle: String = "#FF9F0A",
+    val colorStatusPlanned: String = "#60A5FA",
+    val colorStatusReading: String = "#34D399",
+    val colorStatusPaused: String = "#FBBF24",
+    val colorStatusCompleted: String = "#A78BFA",
+    val colorStatusDropped: String = "#F87171",
+    val language: String = "ru"
+)
+
 object JsonParser {
     val moshi: Moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
@@ -81,6 +115,7 @@ object JsonParser {
 
     private val bookListType = Types.newParameterizedType(List::class.java, Book::class.java)
     private val bookListAdapter = moshi.adapter<List<Book>>(bookListType)
+    private val settingsAdapter = moshi.adapter(SettingsData::class.java)
 
     fun booksToJson(books: List<Book>): String {
         return bookListAdapter.toJson(books)
@@ -93,6 +128,20 @@ object JsonParser {
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
+        }
+    }
+
+    fun settingsToJson(settings: SettingsData): String {
+        return settingsAdapter.toJson(settings)
+    }
+
+    fun jsonToSettings(json: String?): SettingsData? {
+        if (json.isNullOrBlank()) return null
+        return try {
+            settingsAdapter.fromJson(json)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

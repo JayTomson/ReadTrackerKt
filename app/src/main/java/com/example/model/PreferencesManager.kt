@@ -66,8 +66,14 @@ class PreferencesManager(context: Context) {
     private val _titleFontSize = MutableStateFlow(prefs.getFloat("titleFontSize", 14.0f))
     val titleFontSize: StateFlow<Float> = _titleFontSize
 
+    private val _libraryTitleFontSize = MutableStateFlow(prefs.getFloat("libraryTitleFontSize", 28.0f))
+    val libraryTitleFontSize: StateFlow<Float> = _libraryTitleFontSize
+
     private val _filterSpacing = MutableStateFlow(prefs.getFloat("filterSpacing", 0.0f))
     val filterSpacing: StateFlow<Float> = _filterSpacing
+
+    private val _language = MutableStateFlow(prefs.getString("language", "ru") ?: "ru")
+    val language: StateFlow<String> = _language
 
     // Custom colors flows
     private val _colorAccent = MutableStateFlow(prefs.getString("colorAccent", "#FF9F0A") ?: "#FF9F0A")
@@ -198,9 +204,19 @@ class PreferencesManager(context: Context) {
         _titleFontSize.value = value
     }
 
+    fun setLibraryTitleFontSize(value: Float) {
+        prefs.edit().putFloat("libraryTitleFontSize", value).apply()
+        _libraryTitleFontSize.value = value
+    }
+
     fun setFilterSpacing(value: Float) {
         prefs.edit().putFloat("filterSpacing", value).apply()
         _filterSpacing.value = value
+    }
+
+    fun setLanguage(value: String) {
+        prefs.edit().putString("language", value).apply()
+        _language.value = value
     }
 
     fun setColorAccent(value: String) {
@@ -282,5 +298,109 @@ class PreferencesManager(context: Context) {
         val json = JsonParser.booksToJson(value)
         prefs.edit().putString("books", json).apply()
         _books.value = value
+    }
+
+    fun getAllSettings(): SettingsData {
+        return SettingsData(
+            themeMode = _themeMode.value,
+            shortenNumbers = _shortenNumbers.value,
+            showShareButton = _showShareButton.value,
+            stackedStats = _stackedStats.value,
+            showCovers = _showCovers.value,
+            showWebChapters = _showWebChapters.value,
+            showBookmarks = _showBookmarks.value,
+            bookmarkPosition = _bookmarkPosition.value,
+            enableAdaptationStart = _enableAdaptationStart.value,
+            enableHybrid = _enableHybrid.value,
+            enableRating = _enableRating.value,
+            ratingScale = _ratingScale.value,
+            badgeLayoutMode = _badgeLayoutMode.value,
+            analyticsShowMode = _analyticsShowMode.value,
+            showWebInStats = _showWebInStats.value,
+            disableAnimations = _disableAnimations.value,
+            cardSpacing = _cardSpacing.value,
+            titleFontSize = _titleFontSize.value,
+            libraryTitleFontSize = _libraryTitleFontSize.value,
+            filterSpacing = _filterSpacing.value,
+            colorAccent = _colorAccent.value,
+            colorFormatHybrid = _colorFormatHybrid.value,
+            colorFormatSeries = _colorFormatSeries.value,
+            colorFormatWeb = _colorFormatWeb.value,
+            colorFormatSingle = _colorFormatSingle.value,
+            colorStatusPlanned = _colorStatusPlanned.value,
+            colorStatusReading = _colorStatusReading.value,
+            colorStatusPaused = _colorStatusPaused.value,
+            colorStatusCompleted = _colorStatusCompleted.value,
+            colorStatusDropped = _colorStatusDropped.value,
+            language = _language.value
+        )
+    }
+
+    fun applySettings(settings: SettingsData) {
+        prefs.edit()
+            .putInt("themeMode", settings.themeMode)
+            .putBoolean("shortenNumbers", settings.shortenNumbers)
+            .putBoolean("showShareButton", settings.showShareButton)
+            .putBoolean("stackedStats", settings.stackedStats)
+            .putBoolean("showCovers", settings.showCovers)
+            .putBoolean("showWebChapters", settings.showWebChapters)
+            .putBoolean("showBookmarks", settings.showBookmarks)
+            .putInt("bookmarkPosition", settings.bookmarkPosition)
+            .putBoolean("enableAdaptationStart", settings.enableAdaptationStart)
+            .putBoolean("enableHybrid", settings.enableHybrid)
+            .putBoolean("enableRating", settings.enableRating)
+            .putInt("ratingScale", settings.ratingScale)
+            .putInt("badgeLayoutMode", settings.badgeLayoutMode)
+            .putInt("analyticsShowMode", settings.analyticsShowMode)
+            .putBoolean("showWebInStats", settings.showWebInStats)
+            .putBoolean("disableAnimations", settings.disableAnimations)
+            .putFloat("cardSpacing", settings.cardSpacing)
+            .putFloat("titleFontSize", settings.titleFontSize)
+            .putFloat("libraryTitleFontSize", settings.libraryTitleFontSize)
+            .putFloat("filterSpacing", settings.filterSpacing)
+            .putString("colorAccent", settings.colorAccent)
+            .putString("colorFormatHybrid", settings.colorFormatHybrid)
+            .putString("colorFormatSeries", settings.colorFormatSeries)
+            .putString("colorFormatWeb", settings.colorFormatWeb)
+            .putString("colorFormatSingle", settings.colorFormatSingle)
+            .putString("colorStatusPlanned", settings.colorStatusPlanned)
+            .putString("colorStatusReading", settings.colorStatusReading)
+            .putString("colorStatusPaused", settings.colorStatusPaused)
+            .putString("colorStatusCompleted", settings.colorStatusCompleted)
+            .putString("colorStatusDropped", settings.colorStatusDropped)
+            .putString("language", settings.language)
+            .apply()
+
+        _themeMode.value = settings.themeMode
+        _shortenNumbers.value = settings.shortenNumbers
+        _showShareButton.value = settings.showShareButton
+        _stackedStats.value = settings.stackedStats
+        _showCovers.value = settings.showCovers
+        _showWebChapters.value = settings.showWebChapters
+        _showBookmarks.value = settings.showBookmarks
+        _bookmarkPosition.value = settings.bookmarkPosition
+        _enableAdaptationStart.value = settings.enableAdaptationStart
+        _enableHybrid.value = settings.enableHybrid
+        _enableRating.value = settings.enableRating
+        _ratingScale.value = settings.ratingScale
+        _badgeLayoutMode.value = settings.badgeLayoutMode
+        _analyticsShowMode.value = settings.analyticsShowMode
+        _showWebInStats.value = settings.showWebInStats
+        _disableAnimations.value = settings.disableAnimations
+        _cardSpacing.value = settings.cardSpacing
+        _titleFontSize.value = settings.titleFontSize
+        _libraryTitleFontSize.value = settings.libraryTitleFontSize
+        _filterSpacing.value = settings.filterSpacing
+        _colorAccent.value = settings.colorAccent
+        _language.value = settings.language
+        _colorFormatHybrid.value = settings.colorFormatHybrid
+        _colorFormatSeries.value = settings.colorFormatSeries
+        _colorFormatWeb.value = settings.colorFormatWeb
+        _colorFormatSingle.value = settings.colorFormatSingle
+        _colorStatusPlanned.value = settings.colorStatusPlanned
+        _colorStatusReading.value = settings.colorStatusReading
+        _colorStatusPaused.value = settings.colorStatusPaused
+        _colorStatusCompleted.value = settings.colorStatusCompleted
+        _colorStatusDropped.value = settings.colorStatusDropped
     }
 }

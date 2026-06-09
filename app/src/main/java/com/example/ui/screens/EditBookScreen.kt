@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.ui.Locales
 import com.example.model.Book
 import com.example.model.VolumeEntry
 import com.example.viewmodel.ReadTrackerViewModel
@@ -43,12 +44,13 @@ fun EditBookScreen(
     viewModel: ReadTrackerViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val language by viewModel.language.collectAsState()
     val books by viewModel.books.collectAsState()
     val book = books.find { it.id == bookId }
 
     if (book == null) {
         LaunchedEffect(Unit) {
-            viewModel.showToast("Тайтл не найден", isSuccess = false)
+            viewModel.showToast(if (language == "en") "Title not found" else "Тайтл не найден", isSuccess = false)
             onNavigateBack()
         }
         return
@@ -132,16 +134,16 @@ fun EditBookScreen(
             Column {
                 Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
                 TopAppBar(
-                    title = { Text("Редактировать", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                    title = { Text(Locales.getString("edit", language), fontWeight = FontWeight.Bold, fontSize = 20.sp) },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = "Назад", tint = AccentOrange)
+                            Icon(imageVector = Icons.Rounded.ArrowBack, contentDescription = if (language == "en") "Back" else "Назад", tint = AccentOrange)
                         }
                     },
                     actions = {
                     IconButton(onClick = {
                         if (title.isBlank()) {
-                            viewModel.showToast("Название тайтла не может быть пустым", isSuccess = false)
+                            viewModel.showToast(if (language == "en") "Title cannot be empty" else "Название тайтла не может быть пустым", isSuccess = false)
                             return@IconButton
                         }
 
@@ -260,7 +262,7 @@ fun EditBookScreen(
                                     .padding(vertical = 4.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Изменить", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                Text(if (language == "en") "Change" else "Изменить", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     } else {
@@ -272,7 +274,7 @@ fun EditBookScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.height(2.dp))
-                            Text("Обложка", fontSize = 9.sp, color = AccentOrange, fontWeight = FontWeight.Bold)
+                            Text(if (language == "en") "Cover" else "Обложка", fontSize = 9.sp, color = AccentOrange, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -281,11 +283,11 @@ fun EditBookScreen(
 
                 // Title input field
                 Column(modifier = Modifier.weight(1.0f)) {
-                    CategoryHeader("Название")
+                    CategoryHeader(if (language == "en") "Title" else "Название")
                     OutlinedTextField(
                         value = title,
                         onValueChange = { title = it },
-                        placeholder = { Text("Введите название...", color = Color.Gray, fontSize = 14.sp) },
+                        placeholder = { Text(if (language == "en") "Enter title..." else "Введите название...", color = Color.Gray, fontSize = 14.sp) },
                         singleLine = false,
                         maxLines = 3,
                         colors = OutlinedTextFieldDefaults.colors(
@@ -301,7 +303,7 @@ fun EditBookScreen(
             }
 
             // STAtUS LIST (wrap chips arrangement)
-            CategoryHeader("Статус")
+            CategoryHeader(if (language == "en") "Status" else "Статус")
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -336,7 +338,7 @@ fun EditBookScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = getStatusText(st),
+                            text = getStatusText(st, language),
                             color = if (isActive) color else MaterialTheme.colorScheme.onBackground,
                             fontSize = 13.sp,
                             fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium
@@ -346,7 +348,7 @@ fun EditBookScreen(
             }
 
             // FORMAT OPTIONS
-            CategoryHeader("Формат издания")
+            CategoryHeader(if (language == "en") "Publication Format" else "Формат издания")
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -356,11 +358,11 @@ fun EditBookScreen(
             ) {
                 val formats = mutableListOf<Triple<Int, String, String>>()
                 if (enableHybrid) {
-                    formats.add(Triple(0, "LN+WN Гибрид", "Комплексный формат (LN тома + WN онгоинг главы)"))
+                    formats.add(Triple(0, if (language == "en") "LN+WN Hybrid" else "LN+WN Гибрид", if (language == "en") "Complex format (LN volumes + WN ongoing chapters)" else "Комплексный формат (LN тома + WN онгоинг главы)"))
                 }
-                formats.add(Triple(1, "Серия томов", "Серийное издание печатных томов (LN / Книги)"))
-                formats.add(Triple(2, "Веб-новелла", "Азиатские веб-романы, разбитые строго по главам (WN)"))
-                formats.add(Triple(3, "Сингл (Одиночное)", "Одиночный роман (Оношот / Том-сингл)"))
+                formats.add(Triple(1, if (language == "en") "Volume Series" else "Серия томов", if (language == "en") "Serial edition of printed volumes (LN / Books)" else "Серийное издание печатных томов (LN / Книги)"))
+                formats.add(Triple(2, if (language == "en") "Web-novel" else "Веб-новелла", if (language == "en") "Asian web novels, strictly by chapters (WN)" else "Азиатские веб-романы, разбитые строго по главам (WN)"))
+                formats.add(Triple(3, if (language == "en") "Single (One-shot)" else "Сингл (Одиночное)", if (language == "en") "Single novel (One-shot / Single volume)" else "Одиночный роман (Оношот / Том-сингл)"))
 
                 formats.forEachIndexed { index, format ->
                     val fType = format.first
@@ -412,8 +414,8 @@ fun EditBookScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1.0f)) {
-                        Text("Учитывать тома", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                        Text("Отключите для изданий без томов", fontSize = 12.sp, color = Color.Gray)
+                        Text(if (language == "en") "Track volumes" else "Учитывать тома", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(if (language == "en") "Disable for editions without volumes" else "Отключите для изданий без томов", fontSize = 12.sp, color = Color.Gray)
                     }
                     Switch(
                         checked = countVolumes,
@@ -463,7 +465,8 @@ fun EditBookScreen(
                 isOngoing = isOngoing,
                 onOngoingChange = { isOngoing = it },
                 totalVolumesInSeries = totalVolumesInSeries,
-                onTotalVolumesInSeriesChange = { totalVolumesInSeries = it }
+                onTotalVolumesInSeriesChange = { totalVolumesInSeries = it },
+                language = language
             )
 
             Spacer(modifier = Modifier.height(60.dp)) // Safe scrolling margin

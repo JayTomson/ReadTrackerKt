@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.ui.Locales
 
 private val colorCache = java.util.concurrent.ConcurrentHashMap<String, Color>()
 
@@ -103,16 +104,17 @@ fun getFormatColor(
     }
 }
 
-// Get Text based on Status in Russian
-fun getStatusText(status: Int): String {
-    return when (status) {
-        0 -> "В планах"
-        1 -> "Читаю"
-        2 -> "На паузе"
-        3 -> "Завершено"
-        4 -> "Брошено"
-        else -> "Неизвестно"
+// Get Text based on Status with Localization Support
+fun getStatusText(status: Int, language: String = "ru"): String {
+    val key = when (status) {
+        0 -> "planned"
+        1 -> "reading"
+        2 -> "paused"
+        3 -> "completed"
+        4 -> "dropped"
+        else -> "unknown"
     }
+    return Locales.getString(key, language)
 }
 
 // Custom Badge component

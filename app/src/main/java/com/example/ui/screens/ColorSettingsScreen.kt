@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.viewmodel.ReadTrackerViewModel
 import com.example.ui.theme.AccentOrange
+import com.example.ui.Locales
 
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +30,7 @@ fun ColorSettingsScreen(
     viewModel: ReadTrackerViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val language by viewModel.language.collectAsState()
     var showResetConfirmation by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -37,12 +39,12 @@ fun ColorSettingsScreen(
             Column {
                 Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
                 TopAppBar(
-                    title = { Text("Кастомизация цветов", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                    title = { Text(Locales.getString("color_customization", language), fontWeight = FontWeight.Bold, fontSize = 18.sp) },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.Rounded.ArrowBack,
-                                contentDescription = "Назад",
+                                contentDescription = if (language == "en") "Back" else "Назад",
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -51,7 +53,7 @@ fun ColorSettingsScreen(
                         IconButton(onClick = { showResetConfirmation = true }) {
                             Icon(
                                 imageVector = Icons.Rounded.Refresh,
-                                contentDescription = "Сбросить всё",
+                                contentDescription = Locales.getString("reset_all", language),
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -59,7 +61,7 @@ fun ColorSettingsScreen(
                     windowInsets = WindowInsets(0, 0, 0, 0),
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background
-                    )
+                     )
                 )
             }
         },
@@ -72,16 +74,16 @@ fun ColorSettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            InfoBanner()
+            InfoBanner(language)
             Spacer(modifier = Modifier.height(16.dp))
 
-            InterfaceColorGroup(viewModel)
+            InterfaceColorGroup(viewModel, language)
             Spacer(modifier = Modifier.height(20.dp))
 
-            FormatTypesColorGroup(viewModel)
+            FormatTypesColorGroup(viewModel, language)
             Spacer(modifier = Modifier.height(20.dp))
 
-            StatusesColorGroup(viewModel)
+            StatusesColorGroup(viewModel, language)
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -97,7 +99,7 @@ fun ColorSettingsScreen(
             ) {
                 Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Сбросить все цвета по умолчанию", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(Locales.getString("reset_to_default", language), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
             Spacer(modifier = Modifier.height(40.dp))
         }
@@ -106,10 +108,10 @@ fun ColorSettingsScreen(
     if (showResetConfirmation) {
         AlertDialog(
             onDismissRequest = { showResetConfirmation = false },
-            title = { Text("Сброс цветовой схемы", fontWeight = FontWeight.Bold, fontSize = 17.sp) },
+            title = { Text(Locales.getString("color_reset_title", language), fontWeight = FontWeight.Bold, fontSize = 17.sp) },
             text = {
                 Text(
-                    text = "Вы уверены, что хотите сбросить все кастомные цвета интерфейса, типов изданий и статусов чтения к значениям по умолчанию?",
+                    text = Locales.getString("color_reset_confirm", language),
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -122,7 +124,7 @@ fun ColorSettingsScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Сбросить", fontWeight = FontWeight.Bold)
+                    Text(Locales.getString("reset", language), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -130,7 +132,7 @@ fun ColorSettingsScreen(
                     onClick = { showResetConfirmation = false },
                     colors = ButtonDefaults.textButtonColors(contentColor = Color.Gray)
                 ) {
-                    Text("Отмена", fontWeight = FontWeight.SemiBold)
+                    Text(Locales.getString("cancel", language), fontWeight = FontWeight.SemiBold)
                 }
             },
             shape = RoundedCornerShape(20.dp),
@@ -140,13 +142,13 @@ fun ColorSettingsScreen(
 }
 
 @Composable
-fun InterfaceColorGroup(viewModel: ReadTrackerViewModel) {
+fun InterfaceColorGroup(viewModel: ReadTrackerViewModel, language: String) {
     val colorAccentHex by viewModel.colorAccent.collectAsState()
 
-    CategoryHeader("Основной цвет приложения")
+    CategoryHeader(Locales.getString("interface_colors", language))
     CardGroup {
         ColorConfigRow(
-            label = "Цвет акцента и кнопок",
+            label = Locales.getString("accent_and_buttons", language),
             hexValue = colorAccentHex,
             onValueChange = { viewModel.setColorAccent(it) }
         )
@@ -154,34 +156,34 @@ fun InterfaceColorGroup(viewModel: ReadTrackerViewModel) {
 }
 
 @Composable
-fun FormatTypesColorGroup(viewModel: ReadTrackerViewModel) {
+fun FormatTypesColorGroup(viewModel: ReadTrackerViewModel, language: String) {
     val colorFormatHybridHex by viewModel.colorFormatHybrid.collectAsState()
     val colorFormatSeriesHex by viewModel.colorFormatSeries.collectAsState()
     val colorFormatWebHex by viewModel.colorFormatWeb.collectAsState()
     val colorFormatSingleHex by viewModel.colorFormatSingle.collectAsState()
 
-    CategoryHeader("Типы изданий")
+    CategoryHeader(Locales.getString("edition_types", language))
     CardGroup {
         ColorConfigRow(
-            label = "LN+WN Гибрид",
+            label = "LN+WN Hybrid",
             hexValue = colorFormatHybridHex,
             onValueChange = { viewModel.setColorFormatHybrid(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Серия томов",
+            label = if (language == "en") "Series (Volumes)" else "Серия томов",
             hexValue = colorFormatSeriesHex,
             onValueChange = { viewModel.setColorFormatSeries(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Веб-новелла (Web)",
+            label = if (language == "en") "Web Novel (Web)" else "Веб-новелла (Web)",
             hexValue = colorFormatWebHex,
             onValueChange = { viewModel.setColorFormatWeb(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Сингл (Одиночная книга)",
+            label = if (language == "en") "Single (One-shot)" else "Сингл (Одиночная книга)",
             hexValue = colorFormatSingleHex,
             onValueChange = { viewModel.setColorFormatSingle(it) }
         )
@@ -189,41 +191,41 @@ fun FormatTypesColorGroup(viewModel: ReadTrackerViewModel) {
 }
 
 @Composable
-fun StatusesColorGroup(viewModel: ReadTrackerViewModel) {
+fun StatusesColorGroup(viewModel: ReadTrackerViewModel, language: String) {
     val colorStatusPlannedHex by viewModel.colorStatusPlanned.collectAsState()
     val colorStatusReadingHex by viewModel.colorStatusReading.collectAsState()
     val colorStatusPausedHex by viewModel.colorStatusPaused.collectAsState()
     val colorStatusCompletedHex by viewModel.colorStatusCompleted.collectAsState()
     val colorStatusDroppedHex by viewModel.colorStatusDropped.collectAsState()
 
-    CategoryHeader("Статусы чтения")
+    CategoryHeader(Locales.getString("reading_statuses", language))
     CardGroup {
         ColorConfigRow(
-            label = "В планах",
+            label = Locales.getString("planned", language),
             hexValue = colorStatusPlannedHex,
             onValueChange = { viewModel.setColorStatusPlanned(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Читаю",
+            label = Locales.getString("reading", language),
             hexValue = colorStatusReadingHex,
             onValueChange = { viewModel.setColorStatusReading(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "На паузе",
+            label = Locales.getString("paused", language),
             hexValue = colorStatusPausedHex,
             onValueChange = { viewModel.setColorStatusPaused(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Завершено",
+            label = Locales.getString("completed", language),
             hexValue = colorStatusCompletedHex,
             onValueChange = { viewModel.setColorStatusCompleted(it) }
         )
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.08f), modifier = Modifier.padding(horizontal = 16.dp))
         ColorConfigRow(
-            label = "Брошено",
+            label = Locales.getString("dropped", language),
             hexValue = colorStatusDroppedHex,
             onValueChange = { viewModel.setColorStatusDropped(it) }
         )
@@ -231,7 +233,7 @@ fun StatusesColorGroup(viewModel: ReadTrackerViewModel) {
 }
 
 @Composable
-fun InfoBanner() {
+fun InfoBanner(language: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -249,13 +251,13 @@ fun InfoBanner() {
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
-                text = "Гибкая кастомизация",
+                text = Locales.getString("flexible_customization", language),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Нажмите на цветной кружок, чтобы выбрать цвет из палитры, или введите HEX-значение вручную.",
+                text = Locales.getString("customization_sub", language),
                 fontSize = 11.sp,
                 color = Color.Gray,
                 lineHeight = 15.sp
@@ -270,6 +272,8 @@ fun ColorConfigRow(
     hexValue: String,
     onValueChange: (String) -> Unit
 ) {
+    val viewModel: ReadTrackerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val language by viewModel.language.collectAsState()
     var textState by remember(hexValue) { mutableStateOf(hexValue) }
     val displayColor = remember(hexValue) { parseHexColor(hexValue, AccentOrange) }
     var showPickerDialog by remember { mutableStateOf(false) }
@@ -322,6 +326,7 @@ fun ColorConfigRow(
 
     if (showPickerDialog) {
         PresetColorDialog(
+            language = language,
             onDismiss = { showPickerDialog = false },
             onSelectColor = { pickedHex ->
                 textState = pickedHex
@@ -333,6 +338,7 @@ fun ColorConfigRow(
 
 @Composable
 fun PresetColorDialog(
+    language: String,
     onDismiss: () -> Unit,
     onSelectColor: (String) -> Unit
 ) {
@@ -343,10 +349,10 @@ fun PresetColorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Выберите цвет", fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+        title = { Text(Locales.getString("pick_color", language), fontWeight = FontWeight.Bold, fontSize = 16.sp) },
         text = {
             Column {
-                Text("Выберите из готовой палитры:", fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
+                Text(Locales.getString("pick_from_palette", language), fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 12.dp))
                 presetRows.forEach { row ->
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
@@ -374,7 +380,7 @@ fun PresetColorDialog(
                 onClick = onDismiss,
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text("Закрыть", fontWeight = FontWeight.Bold)
+                Text(Locales.getString("close", language), fontWeight = FontWeight.Bold)
             }
         },
         shape = RoundedCornerShape(20.dp),

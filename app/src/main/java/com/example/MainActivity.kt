@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import com.example.ui.Locales
 import com.example.ui.screens.*
 import com.example.ui.theme.ReadTrackerTheme
 import com.example.ui.theme.AccentOrange
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
             val toastMessage by viewModel.toastMessage.collectAsState()
             val disableAnimations by viewModel.disableAnimations.collectAsState()
 
+            val language by viewModel.language.collectAsState()
             val snackbarHostState = remember { SnackbarHostState() }
             val scope = rememberCoroutineScope()
 
@@ -203,7 +205,7 @@ class MainActivity : ComponentActivity() {
                                     .padding(start = 16.dp, end = 16.dp, bottom = 44.dp)
                             ) {
                                 Text(
-                                    text = "Поделиться",
+                                    text = Locales.getString("share", language),
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = MaterialTheme.colorScheme.onBackground,
@@ -213,8 +215,8 @@ class MainActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 ShareOptionTile(
-                                    title = "Аналитика",
-                                    subtitle = "Карточка со статистикой",
+                                    title = Locales.getString("analytics", language),
+                                    subtitle = Locales.getString("stats_card", language),
                                     icon = Icons.Rounded.Analytics,
                                     color = customPrimary,
                                     onClick = {
@@ -226,8 +228,8 @@ class MainActivity : ComponentActivity() {
                                 Spacer(modifier = Modifier.height(12.dp))
 
                                 ShareOptionTile(
-                                    title = "Список тайтлов",
-                                    subtitle = "Все тайтлы в одной карточке",
+                                    title = Locales.getString("title_list", language),
+                                    subtitle = Locales.getString("all_titles_card", language),
                                     icon = Icons.Rounded.FormatListBulleted,
                                     color = Color(0xFF34D399),
                                     onClick = {

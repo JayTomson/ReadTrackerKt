@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.model.Book
+import com.example.ui.Locales
 import com.example.viewmodel.ReadTrackerViewModel
 import com.example.ui.theme.AccentOrange
 
@@ -37,6 +38,7 @@ fun AnalyticsScreen(
     val shortenNumbers by viewModel.shortenNumbers.collectAsState()
     val stackedStats by viewModel.stackedStats.collectAsState()
     val analyticsShowMode by viewModel.analyticsShowMode.collectAsState()
+    val language by viewModel.language.collectAsState()
 
     // Calculating Metrics with optimized remember block
     val completedSeriesCount = remember(books) { books.count { it.status == 3 && it.isSeries } }
@@ -54,12 +56,12 @@ fun AnalyticsScreen(
             Column {
                 Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
                 TopAppBar(
-                    title = { Text("Аналитика", fontWeight = FontWeight.Bold) },
+                    title = { Text(Locales.getString("analytics", language), fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.Rounded.ArrowBack,
-                                contentDescription = "Назад",
+                                contentDescription = if (language == "en") "Back" else "Назад",
                                 tint = MaterialTheme.colorScheme.onBackground
                             )
                         }
@@ -81,14 +83,14 @@ fun AnalyticsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             // METRICS CARD SECTION
-            val statsList = remember(completedSeriesCount, completedSinglesCount, completedHybridsCount, completedWebCount, analyticsShowMode, hasBooksWithVolumes, totalVolumesRead) {
+            val statsList = remember(completedSeriesCount, completedSinglesCount, completedHybridsCount, completedWebCount, analyticsShowMode, hasBooksWithVolumes, totalVolumesRead, language) {
                 val showSingles = analyticsShowMode == 0 || analyticsShowMode == 1
                 val showWeb = analyticsShowMode == 0 || analyticsShowMode == 2
                 mutableListOf<@Composable () -> Unit>().apply {
                     add {
                         StatCard(
                             count = completedSeriesCount.toString(),
-                            label = "Завершено серий",
+                            label = if (language == "en") "Completed Series" else "Завершено серий",
                             icon = Icons.Rounded.EmojiEvents,
                             color = Color(0xFF34D399) // Green
                         )
@@ -98,7 +100,7 @@ fun AnalyticsScreen(
                         add {
                             StatCard(
                                 count = completedSinglesCount.toString(),
-                                label = "Завершено синглов",
+                                label = if (language == "en") "Completed Singles" else "Завершено синглов",
                                 icon = Icons.Rounded.ContentCopy,
                                 color = Color(0xFF06B6D4) // Cyan
                             )
@@ -109,7 +111,7 @@ fun AnalyticsScreen(
                         add {
                             StatCard(
                                 count = completedHybridsCount.toString(),
-                                label = "Завершено LN+WN",
+                                label = if (language == "en") "Completed LN+WN" else "Завершено LN+WN",
                                 icon = Icons.Rounded.AutoStories,
                                 color = Color(0xFFFBBF24) // Yellow
                             )
@@ -120,7 +122,7 @@ fun AnalyticsScreen(
                         add {
                             StatCard(
                                 count = completedWebCount.toString(),
-                                label = "Завершено веб",
+                                label = if (language == "en") "Completed Web" else "Завершено веб",
                                 icon = Icons.Rounded.Language,
                                 color = Color(0xFFA78BFA) // Violet
                             )
@@ -131,7 +133,7 @@ fun AnalyticsScreen(
                         add {
                             StatCard(
                                 count = totalVolumesRead.toString(),
-                                label = "Прочитано томов",
+                                label = if (language == "en") "Volumes Read" else "Прочитано томов",
                                 icon = Icons.Rounded.Layers,
                                 color = Color(0xFF60A5FA) // Blue
                             )
@@ -221,7 +223,7 @@ fun AnalyticsScreen(
             // Total Words - always full width row
             StatCard(
                 count = formatNumber(totalWordsRead, shortenNumbers),
-                label = "Прочитано слов за всё время",
+                label = if (language == "en") "Total words read" else "Прочитано слов за всё время",
                 icon = Icons.Rounded.TextFields,
                 color = AccentOrange,
                 modifier = Modifier.fillMaxWidth()
@@ -230,7 +232,7 @@ fun AnalyticsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // STATUS PROGRESS BARS BLOCK
-            CategoryHeader("По статусам")
+            CategoryHeader(if (language == "en") "By Status" else "По статусам")
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -337,13 +339,13 @@ fun AnalyticsScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1.0f)) {
                     Text(
-                        text = "Настройки",
+                        text = Locales.getString("settings", language),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "Управление функциями, тема, экспорт",
+                        text = if (language == "en") "Manage features, theme, export" else "Управление функциями, тема, экспорт",
                         fontSize = 12.sp,
                         color = Color.Gray
                     )

@@ -1,9 +1,18 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Moshi rules
+-keep class com.example.model.** { *; }
+-keep class com.squareup.moshi.** { *; }
+-keep interface com.squareup.moshi.** { *; }
+
+# Compose rules
+-keepclassmembers class **.ComposableSingletons** {
+    public *;
+}
+
+# General optimization
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+-allowaccessmodification
+-repackageclasses ''
+-overloadaggressively
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface

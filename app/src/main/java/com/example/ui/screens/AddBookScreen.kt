@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.model.Book
 import com.example.model.VolumeEntry
+import com.example.ui.Locales
 import com.example.viewmodel.ReadTrackerViewModel
 import com.example.ui.theme.AccentOrange
 import java.util.UUID
@@ -53,6 +54,7 @@ fun AddBookScreen(
     val enableAdaptationStart by viewModel.enableAdaptationStart.collectAsState()
     val showBookmarks by viewModel.showBookmarks.collectAsState()
     val showWebChapters by viewModel.showWebChapters.collectAsState()
+    val language by viewModel.language.collectAsState()
 
     var currentStep by remember { mutableStateOf(1) }
     val focusManager = LocalFocusManager.current
@@ -105,7 +107,7 @@ fun AddBookScreen(
             Column {
                 Spacer(modifier = Modifier.height(getAdaptiveStatusBarPadding()))
                 TopAppBar(
-                    title = { Text("Добавить тайтл", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
+                    title = { Text(Locales.getString("add_book", language), fontWeight = FontWeight.Bold, fontSize = 20.sp) },
                     navigationIcon = {
                         IconButton(onClick = {
                             if (currentStep > 1) {
@@ -116,7 +118,7 @@ fun AddBookScreen(
                         }) {
                             Icon(
                                 imageVector = if (currentStep == 1) Icons.Rounded.Close else Icons.Rounded.ArrowBack,
-                                contentDescription = "Назад/Закрыть",
+                                contentDescription = if (language == "en") "Back/Close" else "Назад/Закрыть",
                                 tint = AccentOrange
                             )
                         }
@@ -141,14 +143,14 @@ fun AddBookScreen(
                     onClick = {
                         if (currentStep < 3) {
                             if (currentStep == 1 && title.isBlank()) {
-                                viewModel.showToast("Введите название тайтла", isSuccess = false)
+                                viewModel.showToast(if (language == "en") "Enter title" else "Введите название тайтла", isSuccess = false)
                                 return@Button
                             }
                             currentStep++
                         } else {
                             // Validation & Save Book
                             if (title.isBlank()) {
-                                viewModel.showToast("Название тайтла не может быть пустым", isSuccess = false)
+                                viewModel.showToast(if (language == "en") "Title cannot be empty" else "Название тайтла не может быть пустым", isSuccess = false)
                                 return@Button
                             }
 
@@ -219,7 +221,7 @@ fun AddBookScreen(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = if (currentStep < 3) "Далее" else "Добавить",
+                            text = if (currentStep < 3) (if (language == "en") "Next" else "Далее") else (if (language == "en") "Add" else "Добавить"),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -241,7 +243,7 @@ fun AddBookScreen(
                 .padding(innerPadding)
         ) {
             // STEP INDICATOR ROW
-            StepIndicator(activeStep = currentStep) { step ->
+            StepIndicator(activeStep = currentStep, language = language) { step ->
                 if (step < currentStep) {
                     currentStep = step
                 }
@@ -259,7 +261,8 @@ fun AddBookScreen(
                         title = title,
                         onTitleChange = { title = it },
                         coverUrl = coverUrl,
-                        onCoverClick = { selectSourceDialogShow = true }
+                        onCoverClick = { selectSourceDialogShow = true },
+                        language = language
                     )
                     2 -> Step2Content(
                         status = status,
@@ -268,7 +271,8 @@ fun AddBookScreen(
                         onFormatChange = { formatType = it },
                         enableHybrid = enableHybrid,
                         countVolumes = countVolumes,
-                        onCountVolumesChange = { countVolumes = it }
+                        onCountVolumesChange = { countVolumes = it },
+                        language = language
                     )
                     3 -> Step3Content(
                         formatType = formatType,
@@ -302,7 +306,8 @@ fun AddBookScreen(
                         isOngoing = isOngoing,
                         onOngoingChange = { isOngoing = it },
                         totalVolumesInSeries = totalVolumesInSeries,
-                        onTotalVolumesInSeriesChange = { totalVolumesInSeries = it }
+                        onTotalVolumesInSeriesChange = { totalVolumesInSeries = it },
+                        language = language
                     )
                 }
             }
@@ -404,8 +409,8 @@ fun AddBookScreen(
 }
 
 @Composable
-fun StepIndicator(activeStep: Int, onStepClick: (Int) -> Unit) {
-    val stepNames = listOf("Обложка", "Статус", "Данные")
+fun StepIndicator(activeStep: Int, language: String, onStepClick: (Int) -> Unit) {
+    val stepNames = if (language == "en") listOf("Cover", "Status", "Data") else listOf("Обложка", "Статус", "Данные")
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -465,7 +470,8 @@ fun Step1Content(
     title: String,
     onTitleChange: (String) -> Unit,
     coverUrl: String?,
-    onCoverClick: () -> Unit
+    onCoverClick: () -> Unit,
+    language: String
 ) {
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
@@ -505,7 +511,7 @@ fun Step1Content(
                 Box(modifier = Modifier.fillMaxSize()) {
                     AsyncImage(
                         model = coverUrl,
-                        contentDescription = "Обложка книги",
+                        contentDescription = if (language == "en") "Book cover" else "Обложка книги",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -518,7 +524,7 @@ fun Step1Content(
                             .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Изменить", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(if (language == "en") "Change" else "Изменить", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
@@ -531,7 +537,7 @@ fun Step1Content(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Обложка",
+                        text = if (language == "en") "Cover" else "Обложка",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = AccentOrange
@@ -544,7 +550,7 @@ fun Step1Content(
 
         // Title input section
         Column(modifier = Modifier.fillMaxWidth()) {
-            CategoryHeader("Название")
+            CategoryHeader(if (language == "en") "Title" else "Название")
             
             val borderLineColor by animateColorAsState(
                 targetValue = if (isFocused) AccentOrange else Color.Transparent
@@ -553,7 +559,7 @@ fun Step1Content(
             TextField(
                 value = title,
                 onValueChange = onTitleChange,
-                placeholder = { Text("Введите название...", color = Color.Gray, fontSize = 14.sp) },
+                placeholder = { Text(if (language == "en") "Enter title..." else "Введите название...", color = Color.Gray, fontSize = 14.sp) },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
@@ -578,14 +584,7 @@ fun Step1Content(
             Spacer(modifier = Modifier.height(10.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Rounded.Info,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Обложка необязательна", color = Color.Gray, fontSize = 12.sp)
+                   Text(if (language == "en") "Cover is optional" else "Обложка необязательна", color = Color.Gray, fontSize = 12.sp)
             }
         }
     }
@@ -600,10 +599,11 @@ fun Step2Content(
     onFormatChange: (Int) -> Unit,
     enableHybrid: Boolean,
     countVolumes: Boolean,
-    onCountVolumesChange: (Boolean) -> Unit
+    onCountVolumesChange: (Boolean) -> Unit,
+    language: String
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        CategoryHeader("Статус")
+        CategoryHeader(if (language == "en") "Status" else "Статус")
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(0, 1, 2, 3, 4).forEach { st ->
                 val color = getStatusColor(st)
@@ -637,7 +637,7 @@ fun Step2Content(
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(
-                        text = getStatusText(st),
+                        text = getStatusText(st, language),
                         fontSize = 15.sp,
                         fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
                         color = if (isActive) color else MaterialTheme.colorScheme.onBackground
@@ -657,7 +657,7 @@ fun Step2Content(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        CategoryHeader("Формат издания")
+        CategoryHeader(if (language == "en") "Publication Format" else "Формат издания")
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -667,11 +667,11 @@ fun Step2Content(
         ) {
             val formats = mutableListOf<Triple<Int, String, String>>()
             if (enableHybrid) {
-                formats.add(Triple(0, "LN+WN Гибрид", "Комплексный формат (LN тома + WN онгоинг главы)"))
+                formats.add(Triple(0, if (language == "en") "LN+WN Hybrid" else "LN+WN Гибрид", if (language == "en") "Complex format (LN volumes + WN ongoing chapters)" else "Комплексный формат (LN тома + WN онгоинг главы)"))
             }
-            formats.add(Triple(1, "Серия томов", "Серийное издание печатных томов (LN / Книги)"))
-            formats.add(Triple(2, "Веб-новелла", "Азиатские веб-романы, разбитые строго по главам (WN)"))
-            formats.add(Triple(3, "Сингл (Одиночное)", "Одиночный роман (Оношот / Том-сингл)"))
+            formats.add(Triple(1, if (language == "en") "Volume Series" else "Серия томов", if (language == "en") "Serial edition of printed volumes (LN / Books)" else "Серийное издание печатных томов (LN / Книги)"))
+            formats.add(Triple(2, if (language == "en") "Web-novel" else "Веб-новелла", if (language == "en") "Asian web novels, strictly by chapters (WN)" else "Азиатские веб-романы, разбитые строго по главам (WN)"))
+            formats.add(Triple(3, if (language == "en") "Single (One-shot)" else "Сингл (Одиночное)", if (language == "en") "Single novel (One-shot / Single volume)" else "Одиночный роман (Оношот / Том-сингл)"))
 
             formats.forEachIndexed { index, format ->
                 val fType = format.first
@@ -723,8 +723,8 @@ fun Step2Content(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1.0f)) {
-                    Text("Учитывать тома", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text("Отключите для изданий без томов", fontSize = 12.sp, color = Color.Gray)
+                    Text(if (language == "en") "Track volumes" else "Учитывать тома", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(if (language == "en") "Disable for editions without volumes" else "Отключите для изданий без томов", fontSize = 12.sp, color = Color.Gray)
                 }
                 Switch(
                     checked = countVolumes,
@@ -775,17 +775,18 @@ fun Step3Content(
     isOngoing: Boolean,
     onOngoingChange: (Boolean) -> Unit,
     totalVolumesInSeries: String,
-    onTotalVolumesInSeriesChange: (String) -> Unit
+    onTotalVolumesInSeriesChange: (String) -> Unit,
+    language: String
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         
         // Block 1: Bookmark (if enabled)
         if (showBookmarks) {
-            CategoryHeader("Закладка")
+            CategoryHeader(if (language == "en") "Bookmark" else "Закладка")
             OutlinedTextField(
                 value = bookmarkText,
                 onValueChange = onBookmarkChange,
-                placeholder = { Text("Впишите главу/том, например: 1.4 глава, 1х3.3", color = Color.Gray, fontSize = 13.sp) },
+                placeholder = { Text(if (language == "en") "Write chapter/volume, e.g.: 1.4 chapter" else "Впишите главу/том, например: 1.4 глава, 1х3.3", color = Color.Gray, fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Rounded.Bookmark, contentDescription = null, tint = AccentOrange) },
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -802,12 +803,12 @@ fun Step3Content(
 
         // Block 2: Adaptation Starters (if enabled)
         if (enableAdaptationStart) {
-            CategoryHeader("Старт после адаптации")
+            CategoryHeader(if (language == "en") "Start after adaptation" else "Старт после адаптации")
             if (formatType == 1 || formatType == 3) { // Series or Single, vols
                 OutlinedTextField(
                     value = startVolume,
                     onValueChange = onStartVolumeChange,
-                    label = { Text("Начальный том (с какого начали)", fontSize = 13.sp) },
+                    label = { Text(if (language == "en") "Start volume (which one you started from)" else "Начальный том (с какого начали)", fontSize = 13.sp) },
                     leadingIcon = { Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = AccentOrange) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -824,7 +825,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = startChapter,
                     onValueChange = onStartChapterChange,
-                    label = { Text("Начальная глава (с какой начали)", fontSize = 13.sp) },
+                    label = { Text(if (language == "en") "Start chapter (which one you started from)" else "Начальная глава (с какой начали)", fontSize = 13.sp) },
                     leadingIcon = { Icon(Icons.Rounded.PlayArrow, contentDescription = null, tint = AccentOrange) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -843,7 +844,7 @@ fun Step3Content(
 
         // Block 3: Rating (if enabled)
         if (enableRating) {
-            CategoryHeader("Оценка тайтла")
+            CategoryHeader(if (language == "en") "Rating" else "Оценка тайтла")
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -862,7 +863,7 @@ fun Step3Content(
                         val isStarred = bookRating != null && bookRating >= ratingStarValue
                         Icon(
                             imageVector = if (isStarred) Icons.Rounded.Star else Icons.Rounded.StarOutline,
-                            contentDescription = "Оценка $ratingStarValue",
+                            contentDescription = (if (language == "en") "Rating " else "Оценка ") + ratingStarValue,
                             tint = if (isStarred) AccentOrange else Color.Gray,
                             modifier = Modifier
                                 .size(if (ratingScale == 5) 32.dp else 24.dp)
@@ -877,16 +878,16 @@ fun Step3Content(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        val chosenDisplay = if (ratingScale == 5) "${(bookRating+1)/2} из 5" else "$bookRating из 10"
+                        val chosenDisplay = if (ratingScale == 5) "${(bookRating+1)/2} ${if (language == "en") "out of" else "из"} 5" else "$bookRating ${if (language == "en") "out of" else "из"} 10"
                         Text(
-                            text = "Выбрано: $chosenDisplay",
+                            text = (if (language == "en") "Selected: " else "Выбрано: ") + chosenDisplay,
                             color = AccentOrange,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Сбросить",
+                            text = if (language == "en") "Reset" else "Сбросить",
                             color = Color(0xFFF87171),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
@@ -900,7 +901,7 @@ fun Step3Content(
 
         // Block 4: Progressive web/hybrid chapters (only Web=2, Hybrid=0)
         if (formatType == 2) {
-            CategoryHeader("Прогресс глав веб-новеллы")
+            CategoryHeader(if (language == "en") "Web novel progress" else "Прогресс глав веб-новеллы")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -908,7 +909,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = readWebChapters,
                     onValueChange = onReadWebChaptersChange,
-                    label = { Text("Прочитано глав", fontSize = 12.sp) },
+                    label = { Text(if (language == "en") "Chapters read" else "Прочитано глав", fontSize = 12.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -923,7 +924,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = totalWebChapters,
                     onValueChange = onTotalWebChaptersChange,
-                    label = { Text("Всего глав (необяз.)", fontSize = 12.sp) },
+                    label = { Text(if (language == "en") "Total chapters (opt.)" else "Всего глав (необяз.)", fontSize = 12.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -938,7 +939,7 @@ fun Step3Content(
             }
             Spacer(modifier = Modifier.height(18.dp))
         } else if (formatType == 0) { // Hybrid WN chapters
-            CategoryHeader("Прогресс веб-глав (в гибриде)")
+            CategoryHeader(if (language == "en") "Web chapters progress (Hybrid)" else "Прогресс веб-глав (в гибриде)")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -946,7 +947,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = readWebChapters,
                     onValueChange = onReadWebChaptersChange,
-                    label = { Text("Прочитано глав WN", fontSize = 12.sp) },
+                    label = { Text(if (language == "en") "WN chapters read" else "Прочитано глав WN", fontSize = 12.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -961,7 +962,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = totalWebChapters,
                     onValueChange = onTotalWebChaptersChange,
-                    label = { Text("Всего глав WN (необяз.)", fontSize = 12.sp) },
+                    label = { Text(if (language == "en") "Total WN chapters (opt.)" else "Всего глав WN (необяз.)", fontSize = 12.sp) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -978,25 +979,25 @@ fun Step3Content(
         }
 
         // Block 5: Words totals & volume calculations
-        CategoryHeader("Слова и расчёты")
-        if (formatType != 2 && countVolumes) { // Not Web, and Volumes are tracked
-            // Switch row for "Raschet po tomam"
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1.0f)) {
-                    Text("Расчёт по томам", fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        if (useDetailedVolumes) "Записывать слова каждого тома" else "Ввести суммарно по книге",
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-                }
+            CategoryHeader(if (language == "en") "Words and calculations" else "Слова и расчёты")
+            if (formatType != 2 && countVolumes) { // Not Web, and Volumes are tracked
+                // Switch row for "Raschet po tomam"
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1.0f)) {
+                        Text(if (language == "en") "Volume-based calculation" else "Расчёт по томам", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (useDetailedVolumes) (if (language == "en") "Record words for each volume" else "Записывать слова каждого тома") else (if (language == "en") "Enter total for the book" else "Ввести суммарно по книге"),
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
                 Switch(
                     checked = useDetailedVolumes,
                     onCheckedChange = { onUseDetailedVolumesChange(it) },
@@ -1029,7 +1030,7 @@ fun Step3Content(
                                     val doubleVal = input.toDoubleOrNull() ?: entry.v
                                     onUpdateVolume(i, entry.copy(v = doubleVal))
                                 },
-                                label = { Text("Том", fontSize = 12.sp) },
+                                label = { Text(if (language == "en") "Vol" else "Том", fontSize = 12.sp) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -1047,7 +1048,7 @@ fun Step3Content(
                                 onValueChange = { input ->
                                     onUpdateVolume(i, entry.copy(w = input.toIntOrNull() ?: 0))
                                 },
-                                label = { Text("Слов", fontSize = 12.sp) },
+                                label = { Text(if (language == "en") "Words" else "Слов", fontSize = 12.sp) },
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -1070,7 +1071,7 @@ fun Step3Content(
                             ) {
                                 Icon(
                                     imageVector = Icons.Rounded.Remove,
-                                    contentDescription = "Удалить том",
+                                    contentDescription = if (language == "en") "Delete volume" else "Удалить том",
                                     tint = Color(0xFFF87171)
                                 )
                             }
@@ -1089,7 +1090,7 @@ fun Step3Content(
                     ) {
                         Icon(imageVector = Icons.Rounded.Add, contentDescription = null, tint = AccentOrange)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("+ Добавить том", fontWeight = FontWeight.Bold)
+                        Text(if (language == "en") "+ Add volume" else "+ Добавить том", fontWeight = FontWeight.Bold)
                     }
 
                     if (volumeEntries.isNotEmpty()) {
@@ -1105,13 +1106,13 @@ fun Step3Content(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "Томов: ${volumeEntries.size}",
+                                (if (language == "en") "Volumes: " else "Томов: ") + "${volumeEntries.size}",
                                 color = AccentOrange,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
                             )
                             Text(
-                                "Слов: ${formatNumber(volumeEntries.sumOf { it.w }, false)}",
+                                (if (language == "en") "Words: " else "Слов: ") + "${formatNumber(volumeEntries.sumOf { it.w }, false)}",
                                 color = AccentOrange,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
@@ -1128,7 +1129,7 @@ fun Step3Content(
                     OutlinedTextField(
                         value = singleWords,
                         onValueChange = onSingleWordsChange,
-                        label = { Text("СЛОВ", fontSize = 12.sp) },
+                        label = { Text(if (language == "en") "WORDS" else "СЛОВ", fontSize = 12.sp) },
                         leadingIcon = { Icon(Icons.Rounded.TextFields, contentDescription = null, tint = Color.Gray) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1145,7 +1146,7 @@ fun Step3Content(
                     OutlinedTextField(
                         value = singleVolumes,
                         onValueChange = onSingleVolumesChange,
-                        label = { Text("ТОМОВ", fontSize = 12.sp) },
+                        label = { Text(if (language == "en") "VOLS" else "ТОМОВ", fontSize = 12.sp) },
                         leadingIcon = { Icon(Icons.Rounded.Layers, contentDescription = null, tint = Color.Gray) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1165,7 +1166,7 @@ fun Step3Content(
             OutlinedTextField(
                 value = singleWords,
                 onValueChange = onSingleWordsChange,
-                label = { Text("Количество прочитанных слов", fontSize = 13.sp) },
+                label = { Text(if (language == "en") "Word count read" else "Количество прочитанных слов", fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Rounded.TextFields, contentDescription = null, tint = Color.Gray) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -1183,7 +1184,7 @@ fun Step3Content(
         // Block 6: Total volumes/Ongoing stats row (only relevant if countVolumes is true, and format is NOT Web)
         if (countVolumes && formatType != 2) {
             Spacer(modifier = Modifier.height(18.dp))
-            CategoryHeader("Всего томов в серии")
+            CategoryHeader(if (language == "en") "Total volumes in series" else "Всего томов в серии")
             
             // Switch Row Ongoing
             Row(
@@ -1195,9 +1196,9 @@ fun Step3Content(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1.0f)) {
-                    Text("Онгоинг", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(if (language == "en") "Ongoing" else "Онгоинг", fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        if (isOngoing) "Отображается как N/?" else "Количество томов известно",
+                        if (isOngoing) (if (language == "en") "Displays as N/?" else "Отображается как N/?") else (if (language == "en") "Volume count is known" else "Количество томов известно"),
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
@@ -1219,7 +1220,7 @@ fun Step3Content(
                 OutlinedTextField(
                     value = totalVolumesInSeries,
                     onValueChange = onTotalVolumesInSeriesChange,
-                    placeholder = { Text("Необязательно — напр. 25", color = Color.Gray, fontSize = 13.sp) },
+                    placeholder = { Text(if (language == "en") "Optional — e.g. 25" else "Необязательно — напр. 25", color = Color.Gray, fontSize = 13.sp) },
                     leadingIcon = { Icon(Icons.Rounded.BookmarkBorder, contentDescription = null, tint = Color.Gray) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
