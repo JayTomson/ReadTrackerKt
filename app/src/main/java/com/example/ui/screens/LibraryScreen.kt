@@ -183,32 +183,53 @@ fun LibraryScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    IconButton(
-                        onClick = onNavigateToAnalytics,
+                    Box(
                         modifier = Modifier
-                            .size(40.dp)
-                            .align(Alignment.CenterVertically)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Analytics,
-                            contentDescription = Locales.getString("analytics", language),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    if (showShareButton) {
-                        IconButton(
-                            onClick = onOpenShareSheet,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.IosShare,
-                                contentDescription = if (language == "en") "Share" else "Поделиться",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.04f),
+                                shape = RoundedCornerShape(12.dp)
                             )
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            IconButton(
+                                onClick = onNavigateToAnalytics,
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Analytics,
+                                    contentDescription = Locales.getString("analytics", language),
+                                    tint = Color(0xFFFF9F0A),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            if (showShareButton) {
+                                Box(
+                                    modifier = Modifier
+                                        .height(18.dp)
+                                        .width(1.dp)
+                                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                                )
+                                IconButton(
+                                    onClick = onOpenShareSheet,
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.IosShare,
+                                        contentDescription = if (language == "en") "Share" else "Поделиться",
+                                        tint = Color(0xFFFF9F0A),
+                                        modifier = Modifier.size(19.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
