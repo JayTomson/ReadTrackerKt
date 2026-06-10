@@ -35,7 +35,10 @@ import com.example.ui.Locales
 import com.example.model.Book
 import com.example.model.VolumeEntry
 import com.example.viewmodel.ReadTrackerViewModel
-import com.example.ui.theme.AccentOrange
+
+private val AccentOrange: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.primary
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
@@ -47,6 +50,7 @@ fun EditBookScreen(
     val language by viewModel.language.collectAsState()
     val books by viewModel.books.collectAsState()
     val book = books.find { it.id == bookId }
+    val localAccent = AccentOrange
 
     if (book == null) {
         LaunchedEffect(Unit) {
@@ -233,7 +237,7 @@ fun EditBookScreen(
                         .drawBehind {
                             if (coverUrl.isNullOrBlank()) {
                                 drawRoundRect(
-                                    color = AccentOrange.copy(alpha = 0.4f),
+                                    color = localAccent.copy(alpha = 0.4f),
                                     style = Stroke(
                                         width = 1.dp.toPx(),
                                         pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 5f), 0f)

@@ -116,7 +116,12 @@ object Locales {
         "load_configuration" to "Load configuration from file",
         "stats_card" to "Statistics card",
         "title_list" to "Title list",
-        "all_titles_card" to "All titles on one card"
+        "all_titles_card" to "All titles on one card",
+        "share_library_chooser" to "Share library file",
+        "share_settings_chooser" to "Share settings file",
+        "library_exported_toast" to "Library exported successfully",
+        "settings_exported_toast" to "Settings exported successfully",
+        "export_err_toast" to "Export error: "
     )
 
     val ru = mapOf(
@@ -234,7 +239,12 @@ object Locales {
         "load_configuration" to "Загрузить конфигурацию из файла",
         "stats_card" to "Карточка со статистикой",
         "title_list" to "Список тайтлов",
-        "all_titles_card" to "Все тайтлы в одной карточке"
+        "all_titles_card" to "Все тайтлы в одной карточке",
+        "share_library_chooser" to "Поделиться файлом библиотеки",
+        "share_settings_chooser" to "Поделиться файлом настроек",
+        "library_exported_toast" to "Библиотека экспортирована",
+        "settings_exported_toast" to "Настройки экспортированы",
+        "export_err_toast" to "Ошибка экспорта: "
     )
 
     fun getString(key: String, lang: String): String {

@@ -93,7 +93,7 @@ data class SettingsData(
     val disableAnimations: Boolean = false,
     val cardSpacing: Float = 2.0f,
     val titleFontSize: Float = 14.0f,
-    val libraryTitleFontSize: Float = 22.0f,
+    val libraryTitleFontSize: Float = 28.0f,
     val filterSpacing: Float = 0.0f,
     val colorAccent: String = "#FF9F0A",
     val colorFormatHybrid: String = "#FF9F0A",

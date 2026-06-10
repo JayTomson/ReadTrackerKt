@@ -11,6 +11,7 @@ import com.example.model.Book
 import com.example.model.JsonParser
 import com.example.model.PreferencesManager
 import com.example.model.SettingsData
+import com.example.ui.Locales
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,7 @@ import java.util.Date
 import java.util.Locale
 
 class ReadTrackerViewModel(application: Application) : AndroidViewModel(application) {
-    val prefsManager = PreferencesManager(application)
+    private val prefsManager = PreferencesManager(application)
 
     // Books list
     val books: StateFlow<List<Book>> = prefsManager.books
@@ -165,13 +166,16 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
 
-                val chooser = Intent.createChooser(intent, "Поделиться файлом библиотеки")
+                val lang = prefsManager.language.value
+                val chooserTitle = Locales.getString("share_library_chooser", lang)
+                val chooser = Intent.createChooser(intent, chooserTitle)
                 chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(chooser)
-                showToast("Библиотека экспортирована")
+                showToast(Locales.getString("library_exported_toast", lang))
             } catch (e: Exception) {
                 e.printStackTrace()
-                showToast("Ошибка экспорта: ${e.message}", isSuccess = false)
+                val lang = prefsManager.language.value
+                showToast(Locales.getString("export_err_toast", lang) + "${e.message}", isSuccess = false)
             }
         }
     }
@@ -198,13 +202,16 @@ class ReadTrackerViewModel(application: Application) : AndroidViewModel(applicat
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
 
-                val chooser = Intent.createChooser(intent, "Поделиться файлом настроек")
+                val lang = prefsManager.language.value
+                val chooserTitle = Locales.getString("share_settings_chooser", lang)
+                val chooser = Intent.createChooser(intent, chooserTitle)
                 chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(chooser)
-                showToast("Настройки экспортированы")
+                showToast(Locales.getString("settings_exported_toast", lang))
             } catch (e: Exception) {
                 e.printStackTrace()
-                showToast("Ошибка экспорта: ${e.message}", isSuccess = false)
+                val lang = prefsManager.language.value
+                showToast(Locales.getString("export_err_toast", lang) + "${e.message}", isSuccess = false)
             }
         }
     }

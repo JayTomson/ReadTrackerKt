@@ -39,8 +39,11 @@ import com.example.model.Book
 import com.example.model.VolumeEntry
 import com.example.ui.Locales
 import com.example.viewmodel.ReadTrackerViewModel
-import com.example.ui.theme.AccentOrange
 import java.util.UUID
+
+private val AccentOrange: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.primary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -475,6 +478,7 @@ fun Step1Content(
 ) {
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
+    val localAccent = AccentOrange
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -495,7 +499,7 @@ fun Step1Content(
                 .drawBehind {
                     if (coverUrl.isNullOrBlank()) {
                         drawRoundRect(
-                            color = AccentOrange.copy(alpha = 0.4f),
+                            color = localAccent.copy(alpha = 0.4f),
                             style = Stroke(
                                 width = 1.5.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 8f), 0f)

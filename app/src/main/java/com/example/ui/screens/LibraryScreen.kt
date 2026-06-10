@@ -10,6 +10,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,11 +32,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import coil.compose.AsyncImage
 import com.example.model.Book
 import com.example.ui.Locales
 import com.example.viewmodel.ReadTrackerViewModel
 import com.example.ui.theme.AccentOrange
+
+private fun lerpColor(start: Color, stop: Color, fraction: Float): Color {
+    val f = fraction.coerceIn(0f, 1f)
+    return Color(
+        red = start.red + (stop.red - start.red) * f,
+        green = start.green + (stop.green - start.green) * f,
+        blue = start.blue + (stop.blue - start.blue) * f,
+        alpha = start.alpha + (stop.alpha - start.alpha) * f
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -89,20 +103,39 @@ fun LibraryScreen(
     )
     val currentTab = savedTabIndex
 
-    // Filter books based on tab
-    val filteredBooks = remember(books, currentTab) {
-        if (currentTab == 0) {
-            books
-        } else {
-            val targetStatus = when (currentTab) {
-                1 -> 1 // Reading
-                2 -> 0 // Planned
-                3 -> 3 // Completed
-                4 -> 2 // Paused
-                5 -> 4 // Dropped
-                else -> 0
+    // Set up PagerState with bidirectional synchronization to savedTabIndex StateFlow
+    val pagerState = rememberPagerState(initialPage = savedTabIndex) { tabNames.size }
+
+    // Sync from ViewModel to PagerState (e.g. initial load or external update)
+    LaunchedEffect(savedTabIndex) {
+        if (pagerState.currentPage != savedTabIndex) {
+            pagerState.animateScrollToPage(savedTabIndex)
+        }
+    }
+
+    // Sync from PagerState to ViewModel (on swipe/drag selection)
+    LaunchedEffect(pagerState.currentPage) {
+        if (savedTabIndex != pagerState.currentPage) {
+            viewModel.setSavedTabIndex(pagerState.currentPage)
+        }
+    }
+
+    // Filter books helper
+    val getFilteredBooksForTab = remember(books) {
+        { pageIndex: Int ->
+            if (pageIndex == 0) {
+                books
+            } else {
+                val targetStatus = when (pageIndex) {
+                    1 -> 1 // Reading
+                    2 -> 0 // Planned
+                    3 -> 3 // Completed
+                    4 -> 2 // Paused
+                    5 -> 4 // Dropped
+                    else -> 0
+                }
+                books.filter { it.status == targetStatus }
             }
-            books.filter { it.status == targetStatus }
         }
     }
 
@@ -183,8 +216,24 @@ fun LibraryScreen(
 
             Spacer(modifier = Modifier.height(filterSpacing.dp))
 
+            val coroutineScope = rememberCoroutineScope()
+            val lazyListState = rememberLazyListState()
+
+            LaunchedEffect(pagerState.currentPage) {
+                val currentPage = pagerState.currentPage
+                // Keep the tab bar scrolled to 0 for early tabs ( Все, Читаю, Планирую, Завершено)
+                // This keeps them visible and avoids abrupt hiding or sharp scrolling transitions.
+                // We only perform smooth, single-step offsets of 1 item when swiping to the very ending tabs.
+                when (currentPage) {
+                    4 -> lazyListState.animateScrollToItem(1)
+                    5 -> lazyListState.animateScrollToItem(2)
+                    else -> lazyListState.animateScrollToItem(0)
+                }
+            }
+
             // Custom horizontal filters with close spacing and underline indicator
             LazyRow(
+                state = lazyListState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(30.dp),
@@ -193,13 +242,29 @@ fun LibraryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 itemsIndexed(tabNames) { index, name ->
-                    val isSelected = currentTab == index
+                    // Calculate how "active" this tab is based on pager scrolling
+                    val pageOffset = pagerState.currentPage - index + pagerState.currentPageOffsetFraction
+                    val selectionProgress = (1f - Math.abs(pageOffset)).coerceIn(0f, 1f)
+
+                    val textColor = lerpColor(
+                        Color.Gray,
+                        MaterialTheme.colorScheme.primary,
+                        selectionProgress
+                    )
+                    
+                    val indicatorWidth = (22 * selectionProgress).dp
+                    val indicatorAlpha = selectionProgress
+
                     Column(
                         modifier = Modifier
                             .clickable(
                                 interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
                                 indication = null
-                            ) { viewModel.setSavedTabIndex(index) }
+                            ) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            }
                             .padding(bottom = 2.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
@@ -207,16 +272,19 @@ fun LibraryScreen(
                         Text(
                             text = name,
                             fontSize = 14.sp,
-                            fontWeight = if (isSelected) FontWeight.W800 else FontWeight.W500,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
+                            fontWeight = if (selectionProgress > 0.5f) FontWeight.W800 else FontWeight.W500,
+                            color = textColor,
                             modifier = Modifier.padding(bottom = 2.dp)
                         )
-                        // Underline indicator
+                        // Underline indicator with dynamic size and alpha transitions
                         Box(
                             modifier = Modifier
-                                .height(2.dp)
-                                .width(if (isSelected) 18.dp else 0.dp)
-                                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(1.dp))
+                                .height(2.5.dp)
+                                .width(indicatorWidth)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = indicatorAlpha),
+                                    shape = RoundedCornerShape(1.25.dp)
+                                )
                         )
                     }
                 }
@@ -224,83 +292,92 @@ fun LibraryScreen(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            if (filteredBooks.isEmpty()) {
-                // Empty Library state
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1.0f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.0f)
+            ) { pageIndex ->
+                val booksForPage = remember(books, pageIndex) {
+                    getFilteredBooksForTab(pageIndex)
+                }
+
+                if (booksForPage.isEmpty()) {
+                    // Empty Library state
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Rounded.MenuBook,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(40.dp)
+                            Box(
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.MenuBook,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(40.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = Locales.getString("no_books", language),
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (language == "en") "Tap + to add a title" else "Нажмите + чтобы добавить тайтл",
+                                fontSize = 13.sp,
+                                color = Color.Gray
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = Locales.getString("no_books", language),
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = if (language == "en") "Tap + to add a title" else "Нажмите + чтобы добавить тайтл",
-                            fontSize = 13.sp,
-                            color = Color.Gray
-                        )
                     }
-                }
-            } else {
-                // Loaded Books listing
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1.0f),
-                    contentPadding = PaddingValues(top = 4.dp, bottom = 100.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(filteredBooks, key = { it.id }) { book ->
-                        BookRowItem(
-                            book = book,
-                            language = language,
-                            showCovers = showCovers,
-                            showBookmarks = showBookmarks,
-                            bookmarkPosition = bookmarkPosition,
-                            enableRating = enableRating,
-                            ratingScale = ratingScale,
-                            badgeLayoutMode = badgeLayoutMode,
-                            enableAdaptationStart = enableAdaptationStart,
-                            showWebChapters = showWebChapters,
-                            cardSpacing = cardSpacing,
-                            titleFontSize = titleFontSize,
-                            onClick = { onNavigateToEdit(book.id) },
-                            onLongClick = { bookToDelete = book },
-                            accentHex = colorAccentHex,
-                            hybridHex = colorFormatHybridHex,
-                            seriesHex = colorFormatSeriesHex,
-                            webHex = colorFormatWebHex,
-                            singleHex = colorFormatSingleHex,
-                            plannedHex = colorStatusPlannedHex,
-                            readingHex = colorStatusReadingHex,
-                            pausedHex = colorStatusPausedHex,
-                            completedHex = colorStatusCompletedHex,
-                            droppedHex = colorStatusDroppedHex
-                        )
+                } else {
+                    // Loaded Books listing
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(top = 4.dp, bottom = 100.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(booksForPage, key = { it.id }) { book ->
+                            BookRowItem(
+                                book = book,
+                                language = language,
+                                showCovers = showCovers,
+                                showBookmarks = showBookmarks,
+                                bookmarkPosition = bookmarkPosition,
+                                enableRating = enableRating,
+                                ratingScale = ratingScale,
+                                badgeLayoutMode = badgeLayoutMode,
+                                enableAdaptationStart = enableAdaptationStart,
+                                showWebChapters = showWebChapters,
+                                cardSpacing = cardSpacing,
+                                titleFontSize = titleFontSize,
+                                onClick = { onNavigateToEdit(book.id) },
+                                onLongClick = { bookToDelete = book },
+                                accentHex = colorAccentHex,
+                                hybridHex = colorFormatHybridHex,
+                                seriesHex = colorFormatSeriesHex,
+                                webHex = colorFormatWebHex,
+                                singleHex = colorFormatSingleHex,
+                                plannedHex = colorStatusPlannedHex,
+                                readingHex = colorStatusReadingHex,
+                                pausedHex = colorStatusPausedHex,
+                                completedHex = colorStatusCompletedHex,
+                                droppedHex = colorStatusDroppedHex
+                            )
+                        }
                     }
                 }
             }
@@ -382,6 +459,8 @@ fun BookRowItem(
     val statusColor = getStatusColor(book.status, plannedHex, readingHex, pausedHex, completedHex, droppedHex, accentHex)
     val cardBackground = MaterialTheme.colorScheme.surface
     val shorten = false // Standard formatting inside rows
+    val parsedAccentColor = remember(accentHex) { parseHexColor(accentHex, AccentOrange) }
+    val parsedReadingColor = remember(readingHex) { parseHexColor(readingHex, Color(0xFF34D399)) }
 
     if (showCovers) {
         // Detailed row with cover thumbnail
@@ -580,7 +659,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = parseHexColor(accentHex, AccentOrange)
+                            color = parsedAccentColor
                         )
                     }
 
@@ -592,14 +671,14 @@ fun BookRowItem(
                         book.isSeries -> BookBadge(if (language == "en") "Series" else "Серия", badgeColor)
                     }
                     if (book.isOngoing) {
-                        BookBadge(if (language == "en") "Ong." else "Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
+                        BookBadge(if (language == "en") "Ong." else "Онг.", parsedReadingColor)
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parsedReadingColor)
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parsedReadingColor)
                         }
                     }
                 }
@@ -611,7 +690,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = parseHexColor(accentHex, AccentOrange)
+                            color = parsedAccentColor
                         )
                     }
 
@@ -627,15 +706,15 @@ fun BookRowItem(
                             book.isSeries -> BookBadge(if (language == "en") "Series" else "Серия", badgeColor)
                         }
                         if (book.isOngoing) {
-                            BookBadge(if (language == "en") "Ong." else "Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge(if (language == "en") "Ong." else "Онг.", parsedReadingColor)
                         }
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parsedReadingColor)
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parsedReadingColor)
                         }
                     }
                 }
@@ -812,7 +891,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = parseHexColor(accentHex, AccentOrange)
+                            color = parsedAccentColor
                         )
                     }
 
@@ -824,14 +903,14 @@ fun BookRowItem(
                         book.isSeries -> BookBadge(if (language == "en") "Series" else "Серия", badgeColor)
                     }
                     if (book.isOngoing) {
-                        BookBadge(if (language == "en") "Ong." else "Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
+                        BookBadge(if (language == "en") "Ong." else "Онг.", parsedReadingColor)
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parsedReadingColor)
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parsedReadingColor)
                         }
                     }
                 }
@@ -843,7 +922,7 @@ fun BookRowItem(
                     if (enableRating && book.rating != null) {
                         BookBadge(
                             text = book.getRatingDisplay(ratingScale),
-                            color = parseHexColor(accentHex, AccentOrange)
+                            color = parsedAccentColor
                         )
                     }
 
@@ -859,15 +938,15 @@ fun BookRowItem(
                             book.isSeries -> BookBadge(if (language == "en") "Series" else "Серия", badgeColor)
                         }
                         if (book.isOngoing) {
-                            BookBadge(if (language == "en") "Ong." else "Онг.", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge(if (language == "en") "Ong." else "Онг.", parsedReadingColor)
                         }
                     }
 
                     if (enableAdaptationStart) {
                         if (book.isSeries && book.startVolume != null) {
-                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: v." else "Старт: т."} ${book.startVolume}", parsedReadingColor)
                         } else if ((book.isWeb || book.isHybridFormat) && book.startChapter != null) {
-                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parseHexColor(readingHex, Color(0xFF34D399)))
+                            BookBadge("${if (language == "en") "Start: ch." else "Старт: гл."} ${book.startChapter}", parsedReadingColor)
                         }
                     }
                 }

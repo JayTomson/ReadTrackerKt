@@ -27,6 +27,16 @@ import com.example.ui.Locales
 import com.example.viewmodel.ReadTrackerViewModel
 import com.example.ui.theme.AccentOrange
 
+private data class AnalyticsMetrics(
+    val completedSeries: Int,
+    val completedSingles: Int,
+    val completedHybrids: Int,
+    val completedWeb: Int,
+    val totalVolumes: Int,
+    val hasVolumes: Boolean,
+    val totalWords: Int
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsScreen(
@@ -41,14 +51,49 @@ fun AnalyticsScreen(
     val language by viewModel.language.collectAsState()
 
     // Calculating Metrics with optimized remember block
-    val completedSeriesCount = remember(books) { books.count { it.status == 3 && it.isSeries } }
-    val completedSinglesCount = remember(books) { books.count { it.status == 3 && it.isSingle } }
-    val completedHybridsCount = remember(books) { books.count { it.status == 3 && it.isHybridFormat } }
-    val completedWebCount = remember(books) { books.count { it.status == 3 && it.isWeb } }
+    val metrics = remember(books) {
+        var completedSeries = 0
+        var completedSingles = 0
+        var completedHybrids = 0
+        var completedWeb = 0
+        var totalVolumes = 0
+        var hasVolumes = false
+        var totalWords = 0
 
-    val totalVolumesRead = remember(books) { books.sumOf { if (it.countVolumes && !it.isWeb) it.effectiveVolumes else 0 } }
-    val hasBooksWithVolumes = remember(books) { books.any { it.countVolumes && !it.isWeb } }
-    val totalWordsRead = remember(books) { books.sumOf { it.effectiveWords } }
+        for (book in books) {
+            val isCompleted = book.status == 3
+            if (isCompleted) {
+                if (book.isSeries) completedSeries++
+                if (book.isSingle) completedSingles++
+                if (book.isHybridFormat) completedHybrids++
+                if (book.isWeb) completedWeb++
+            }
+            if (book.countVolumes && !book.isWeb) {
+                totalVolumes += book.effectiveVolumes
+                hasVolumes = true
+            }
+            totalWords += book.effectiveWords
+        }
+
+        AnalyticsMetrics(
+            completedSeries = completedSeries,
+            completedSingles = completedSingles,
+            completedHybrids = completedHybrids,
+            completedWeb = completedWeb,
+            totalVolumes = totalVolumes,
+            hasVolumes = hasVolumes,
+            totalWords = totalWords
+        )
+    }
+
+    val completedSeriesCount = metrics.completedSeries
+    val completedSinglesCount = metrics.completedSingles
+    val completedHybridsCount = metrics.completedHybrids
+    val completedWebCount = metrics.completedWeb
+
+    val totalVolumesRead = metrics.totalVolumes
+    val hasBooksWithVolumes = metrics.hasVolumes
+    val totalWordsRead = metrics.totalWords
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
