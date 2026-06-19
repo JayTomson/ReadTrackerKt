@@ -1,0 +1,23 @@
+* text=auto
+
+# Declare files that will always have LF line endings on checkout.
+*.kt text eol=lf
+*.xml text eol=lf
+*.gradle text eol=lf
+*.gradle.kts text eol=lf
+*.toml text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.pro text eol=lf
+*.properties text eol=lf
+
+# Explicitly declare binary files to prevent CRLF line ending conversion and corruption.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.apk binary
+*.jar binary
+*.aar binary
