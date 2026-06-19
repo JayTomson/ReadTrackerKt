@@ -1,0 +1,8 @@
+An elegant, highly-customizable application to track your reading achievements. Keep records of your books, log your reading sessions (pages, chapters, words), set ratings, view statistics/charts, customize interface colors, and manage reading statuses (Planned, Reading, On Pause, Completed, Dropped). Includes backup import/export features.
+
+Key Features:
+- Reading Statuses: Planned, Reading, On Pause, Completed, Dropped
+- Highly Customizable: Configure every UI component, edition type, and reading status color to your liking.
+- Support for Web Novels and Singles
+- Statistics: Charts, read volumes, word counts, and other deep analytics parameters.
+- Export / Import library and settings data in JSON format.

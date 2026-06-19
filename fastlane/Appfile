@@ -1,0 +1,2 @@
+json_key_file("") # Path to the json secret file - left blank for F-Droid build systems
+package_name("com.aistudio.readtracker.vrmnlk") # The unique Application ID of your Android app

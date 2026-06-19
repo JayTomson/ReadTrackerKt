@@ -1,0 +1,13 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# All destinations and actions are defined here: https://docs.fastlane.tools/actions
+
+default_platform(:android)
+
+platform :android do
+  desc "Local build to check compilation"
+  lane :build do
+    gradle(task: "assembleDebug")
+  end
+end
